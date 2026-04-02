@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: ops-inventory-api
+    env: node
+    rootDir: apps/api
+    buildCommand: npm install --omit=dev
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        sync: false
+      - key: CLIENT_URLS
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: MONGODB_URI
+        sync: false
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+      - key: SEED_STAFF_EMAIL
+        sync: false
+      - key: SEED_STAFF_PASSWORD
+        sync: false

@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Ops Inventory Mobile",
+    "slug": "ops-inventory-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#F3F7F6"
+    },
+    "assetBundlePatterns": ["**/*"]
+  }
+}

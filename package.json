@@ -1,0 +1,25 @@
+{
+  "name": "atlas-wholesale-suite",
+  "private": true,
+  "engines": {
+    "node": ">=22 <25",
+    "npm": ">=10"
+  },
+  "workspaces": [
+    "apps/web",
+    "apps/api",
+    "apps/mobile"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace web\" \"npm run dev --workspace api\"",
+    "dev:mobile": "npm run dev --workspace mobile",
+    "dev:all": "concurrently \"npm run dev --workspace web\" \"npm run dev --workspace api\" \"npm run dev --workspace mobile\"",
+    "build": "npm run build --workspace web && npm run build --workspace api",
+    "lint": "npm run lint --workspace web && npm run lint --workspace api",
+    "seed": "npm run seed --workspace api",
+    "test": "npm run test --workspace api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
