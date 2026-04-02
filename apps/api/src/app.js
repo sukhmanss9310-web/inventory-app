@@ -3,6 +3,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import morgan from "morgan";
+
 import { env } from "./config/env.js";
 import { authRouter } from "./routes/authRoutes.js";
 import { dashboardRouter } from "./routes/dashboardRoutes.js";
@@ -12,26 +13,28 @@ import { productRouter } from "./routes/productRoutes.js";
 import { errorHandler, notFound } from "./middleware/error.js";
 
 export const app = express();
-const allowedOrigins = new Set(env.clientUrls);
 
-app.set("trust proxy", env.nodeEnv === "production" ? 1 : 0);
+// ✅ Trust proxy (needed for Render)
+app.set("trust proxy", 1);
 
+// ✅ FIXED CORS (allow everything for now)
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.has(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(null, false);
-    },
-    credentials: false
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
+
+// ✅ Security + parsing
 app.use(helmet());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+// ✅ Logging
 app.use(morgan(env.nodeEnv === "production" ? "combined" : "dev"));
+
+// ✅ Rate limiting
 app.use(
   "/api/auth",
   rateLimit({
@@ -41,6 +44,7 @@ app.use(
     legacyHeaders: false
   })
 );
+
 app.use(
   "/api",
   rateLimit({
@@ -51,6 +55,7 @@ app.use(
   })
 );
 
+// ✅ Health check
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
@@ -58,11 +63,13 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// ✅ Routes
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/logs", logRouter);
 
+// ✅ Error handling
 app.use(notFound);
 app.use(errorHandler);

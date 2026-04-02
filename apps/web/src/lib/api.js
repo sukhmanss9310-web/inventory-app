@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5001/api").replace(/\/$/, "");
+const API_URL = "https://inventory-app-2jiw.onrender.com/api";
 
 const request = async (path, { method = "GET", token, body } = {}) => {
   const response = await fetch(`${API_URL}${path}`, {
