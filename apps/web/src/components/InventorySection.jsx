@@ -8,6 +8,7 @@ export const InventorySection = ({
   products,
   search,
   onSearchChange,
+  onExport,
   onImport,
   onCreate,
   onEdit,
@@ -30,6 +31,13 @@ export const InventorySection = ({
         />
         {user.role === "admin" ? (
           <>
+            <button
+              type="button"
+              onClick={onExport}
+              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
+            >
+              Export Excel
+            </button>
             <button
               type="button"
               onClick={onImport}

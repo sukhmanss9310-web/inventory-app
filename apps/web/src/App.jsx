@@ -188,6 +188,41 @@ export default function App() {
     }
   };
 
+  const handleExportInventory = async () => {
+    setBusy(true);
+    setBanner("");
+
+    try {
+      const XLSX = await import("xlsx");
+      const exportRows = visibleProducts.map((product) => ({
+        Name: product.name,
+        SKU: product.sku,
+        Stock: product.stock,
+        LowStockThreshold: product.lowStockThreshold,
+        Status: product.isLowStock ? "Low stock" : "Healthy stock",
+        CreatedAt: product.createdAt ? new Date(product.createdAt).toISOString() : "",
+        UpdatedAt: product.updatedAt ? new Date(product.updatedAt).toISOString() : ""
+      }));
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(exportRows);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory");
+
+      const dateStamp = new Date().toISOString().slice(0, 10);
+      const companySegment = user.companyCode || "inventory";
+      XLSX.writeFile(workbook, `${companySegment}-inventory-${dateStamp}.xlsx`);
+
+      setBanner(
+        `Exported ${exportRows.length} product${exportRows.length === 1 ? "" : "s"} to Excel.`
+      );
+    } catch (error) {
+      setBanner(error.message || "Could not export the inventory file.");
+      throw error;
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (loading) {
     return (
         <div className="flex min-h-screen items-center justify-center text-sm font-semibold text-slate-600">
@@ -242,6 +277,7 @@ export default function App() {
             products={visibleProducts}
             search={search}
             onSearchChange={setSearch}
+            onExport={handleExportInventory}
             onImport={() => setImportModal({ open: true })}
             onCreate={() => setProductModal({ open: true, mode: "create", product: null })}
             onEdit={(product) => setProductModal({ open: true, mode: "edit", product })}
