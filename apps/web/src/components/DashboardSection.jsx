@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DashboardAnalyticsSection } from "./DashboardAnalyticsSection";
 
 const metricLabels = [
   { key: "totalStock", label: "Total stock", tone: "text-slate-900" },
@@ -97,6 +98,8 @@ export const DashboardSection = ({
           ))}
         </div>
       </section>
+
+      <DashboardAnalyticsSection analytics={dashboard.analytics} />
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
         <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
