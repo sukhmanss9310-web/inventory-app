@@ -166,6 +166,8 @@ Admins can also use the inventory management screens to reset a product's stock 
 
 Admins also have a company-level reset tool. It keeps the company and user accounts, sets every product stock level to `0`, clears dispatch and return history, clears older logs for that company, and then writes one fresh reset log with the reason you entered.
 
+Admins can also bulk-import products from an Excel or CSV file, or from a public Google Sheet. The supported column headers are `name`, `sku`, `stock`, and `lowStockThreshold`. Imports are company-scoped and update existing products by matching SKU.
+
 ## Running Locally
 
 API + web:

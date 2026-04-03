@@ -4,12 +4,17 @@ import {
   deleteProductHandler,
   getProduct,
   getProducts,
+  importProductsHandler,
   updateProductHandler
 } from "../controllers/productController.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { protect, requireRole } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
-import { createProductSchema, productIdParamSchema } from "../schemas/productSchemas.js";
+import {
+  createProductSchema,
+  importProductsSchema,
+  productIdParamSchema
+} from "../schemas/productSchemas.js";
 
 export const productRouter = Router();
 
@@ -26,6 +31,12 @@ productRouter.post(
   requireRole("admin"),
   validate({ body: createProductSchema }),
   asyncHandler(createProductHandler)
+);
+productRouter.post(
+  "/import",
+  requireRole("admin"),
+  validate({ body: importProductsSchema }),
+  asyncHandler(importProductsHandler)
 );
 productRouter.put(
   "/:productId",

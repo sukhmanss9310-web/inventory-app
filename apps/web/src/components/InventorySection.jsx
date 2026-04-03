@@ -8,6 +8,7 @@ export const InventorySection = ({
   products,
   search,
   onSearchChange,
+  onImport,
   onCreate,
   onEdit,
   onDelete,
@@ -28,13 +29,22 @@ export const InventorySection = ({
           onChange={(event) => onSearchChange(event.target.value)}
         />
         {user.role === "admin" ? (
-          <button
-            type="button"
-            onClick={onCreate}
-            className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-          >
-            Add product
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={onImport}
+              className="rounded-2xl border border-teal-200 bg-teal-50 px-5 py-3 text-sm font-semibold text-teal-700 transition hover:bg-teal-100"
+            >
+              Import data
+            </button>
+            <button
+              type="button"
+              onClick={onCreate}
+              className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              Add product
+            </button>
+          </>
         ) : null}
       </div>
     </div>

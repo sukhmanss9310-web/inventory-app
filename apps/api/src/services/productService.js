@@ -1,5 +1,6 @@
 import { Product } from "../models/Product.js";
 import { createError } from "../utils/errors.js";
+import { loadGoogleSheetRows, normalizeImportRows } from "../utils/spreadsheetImport.js";
 import { createActivityLog } from "./activityLogService.js";
 
 const serializeProduct = (product) => ({
@@ -141,4 +142,113 @@ export const deleteProduct = async (productId, user) => {
       sku: product.sku
     }
   });
+};
+
+export const importProducts = async ({ rows, sheetUrl, sourceLabel = "" }, user, company) => {
+  const importedRows = sheetUrl ? await loadGoogleSheetRows(sheetUrl) : rows;
+  const normalizedRows = normalizeImportRows(importedRows);
+  const skus = normalizedRows.map((row) => row.sku);
+
+  const existingProducts = await Product.find({
+    companyId: user.companyId,
+    sku: { $in: skus }
+  });
+
+  const existingProductsBySku = new Map(
+    existingProducts.map((product) => [product.sku.toUpperCase(), product])
+  );
+
+  const productsToCreate = [];
+  const updateOperations = [];
+  let updatedCount = 0;
+  let unchangedCount = 0;
+
+  normalizedRows.forEach((row) => {
+    const existingProduct = existingProductsBySku.get(row.sku);
+
+    if (!existingProduct) {
+      productsToCreate.push({
+        companyId: user.companyId,
+        name: row.name,
+        sku: row.sku,
+        stock: row.stock,
+        lowStockThreshold: row.lowStockThreshold,
+        createdBy: user._id,
+        updatedBy: user._id
+      });
+      return;
+    }
+
+    const isUnchanged =
+      existingProduct.name === row.name &&
+      existingProduct.stock === row.stock &&
+      existingProduct.lowStockThreshold === row.lowStockThreshold;
+
+    if (isUnchanged) {
+      unchangedCount += 1;
+      return;
+    }
+
+    updatedCount += 1;
+    updateOperations.push({
+      updateOne: {
+        filter: {
+          _id: existingProduct._id,
+          companyId: user.companyId
+        },
+        update: {
+          $set: {
+            name: row.name,
+            sku: row.sku,
+            stock: row.stock,
+            lowStockThreshold: row.lowStockThreshold,
+            updatedBy: user._id
+          }
+        }
+      }
+    });
+  });
+
+  let createdCount = 0;
+
+  if (productsToCreate.length > 0) {
+    const createdProducts = await Product.insertMany(productsToCreate);
+    createdCount = createdProducts.length;
+  }
+
+  if (updateOperations.length > 0) {
+    await Product.bulkWrite(updateOperations);
+  }
+
+  await createActivityLog({
+    companyId: user.companyId,
+    actorId: user._id,
+    actorName: user.name,
+    actorRole: user.role,
+    action: "inventory_imported",
+    entityType: "company",
+    entityId: company._id,
+    message: `${user.name} imported inventory for ${normalizedRows.length} row(s). Created ${createdCount}, updated ${updatedCount}, unchanged ${unchangedCount}.`,
+    metadata: {
+      companyCode: company.code,
+      companyName: company.name,
+      sourceType: sheetUrl ? "google_sheet" : "spreadsheet",
+      sourceLabel: sourceLabel || sheetUrl || "Spreadsheet upload",
+      totalRows: normalizedRows.length,
+      createdCount,
+      updatedCount,
+      unchangedCount
+    }
+  });
+
+  return {
+    summary: {
+      totalRows: normalizedRows.length,
+      createdCount,
+      updatedCount,
+      unchangedCount,
+      sourceType: sheetUrl ? "google_sheet" : "spreadsheet",
+      sourceLabel: sourceLabel || sheetUrl || "Spreadsheet upload"
+    }
+  };
 };

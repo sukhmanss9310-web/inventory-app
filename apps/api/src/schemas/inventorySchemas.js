@@ -7,6 +7,7 @@ const actionSchema = z.enum([
   "product_created",
   "product_updated",
   "product_deleted",
+  "inventory_imported",
   "inventory_adjusted",
   "dispatch_created",
   "return_created"

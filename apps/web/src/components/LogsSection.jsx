@@ -7,6 +7,7 @@ const actionOptions = [
   { value: "product_created", label: "Products created" },
   { value: "product_updated", label: "Products updated" },
   { value: "product_deleted", label: "Products deleted" },
+  { value: "inventory_imported", label: "Inventory imports" },
   { value: "inventory_adjusted", label: "Inventory resets" },
   { value: "company_reset", label: "Company resets" },
   { value: "user_created", label: "Users created" }

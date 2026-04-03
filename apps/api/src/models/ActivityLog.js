@@ -13,6 +13,7 @@ const activityLogSchema = new mongoose.Schema(
         "product_created",
         "product_updated",
         "product_deleted",
+        "inventory_imported",
         "inventory_adjusted",
         "company_reset",
         "dispatch_created",

@@ -2,6 +2,7 @@ import {
   createProduct,
   deleteProduct,
   getProductById,
+  importProducts,
   listProducts,
   updateProduct
 } from "../services/productService.js";
@@ -41,5 +42,14 @@ export const deleteProductHandler = async (req, res) => {
 
   return res.json({
     message: "Product deleted successfully"
+  });
+};
+
+export const importProductsHandler = async (req, res) => {
+  const result = await importProducts(req.body, req.user, req.company);
+
+  return res.status(201).json({
+    message: "Inventory imported successfully",
+    ...result
   });
 };

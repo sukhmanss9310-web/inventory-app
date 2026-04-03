@@ -3,6 +3,7 @@ import { AppShell } from "./components/AppShell";
 import { AuthScreen } from "./components/AuthScreen";
 import { DashboardSection } from "./components/DashboardSection";
 import { DispatchSection } from "./components/DispatchSection";
+import { InventoryImportModal } from "./components/InventoryImportModal";
 import { InventorySection } from "./components/InventorySection";
 import { InventoryResetModal } from "./components/InventoryResetModal";
 import { LogsSection } from "./components/LogsSection";
@@ -37,6 +38,10 @@ const initialResetModalState = {
   product: null
 };
 
+const initialImportModalState = {
+  open: false
+};
+
 const initialLogFilters = {
   search: "",
   action: "",
@@ -68,6 +73,7 @@ export default function App() {
   const [creatingUser, setCreatingUser] = useState(false);
   const [productModal, setProductModal] = useState(initialModalState);
   const [resetModal, setResetModal] = useState(initialResetModalState);
+  const [importModal, setImportModal] = useState(initialImportModalState);
 
   const sections = useMemo(
     () => (user ? sectionsByRole[user.role] || sectionsByRole.staff : []),
@@ -236,6 +242,7 @@ export default function App() {
             products={visibleProducts}
             search={search}
             onSearchChange={setSearch}
+            onImport={() => setImportModal({ open: true })}
             onCreate={() => setProductModal({ open: true, mode: "create", product: null })}
             onEdit={(product) => setProductModal({ open: true, mode: "edit", product })}
             onResetStock={(product) => setResetModal({ open: true, product })}
@@ -331,6 +338,48 @@ export default function App() {
             "Inventory corrected successfully."
           )
         }
+      />
+
+      <InventoryImportModal
+        open={importModal.open}
+        busy={busy}
+        onClose={() => setImportModal(initialImportModalState)}
+        onImportRows={async (payload) => {
+          setBusy(true);
+          setBanner("");
+
+          try {
+            const response = await api.importProducts(token, payload);
+            setImportModal(initialImportModalState);
+            setBanner(
+              `Imported ${response.summary.totalRows} rows. Created ${response.summary.createdCount}, updated ${response.summary.updatedCount}, unchanged ${response.summary.unchangedCount}.`
+            );
+            await refreshOperationalData();
+          } catch (error) {
+            setBanner(error.message);
+            throw error;
+          } finally {
+            setBusy(false);
+          }
+        }}
+        onImportSheet={async (payload) => {
+          setBusy(true);
+          setBanner("");
+
+          try {
+            const response = await api.importProducts(token, payload);
+            setImportModal(initialImportModalState);
+            setBanner(
+              `Imported ${response.summary.totalRows} rows. Created ${response.summary.createdCount}, updated ${response.summary.updatedCount}, unchanged ${response.summary.unchangedCount}.`
+            );
+            await refreshOperationalData();
+          } catch (error) {
+            setBanner(error.message);
+            throw error;
+          } finally {
+            setBusy(false);
+          }
+        }}
       />
     </>
   );

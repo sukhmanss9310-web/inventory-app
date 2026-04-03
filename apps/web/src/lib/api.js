@@ -41,6 +41,8 @@ export const api = {
   getCurrentUser: (token) => request("/auth/me", { token }),
   getProducts: (token) => request("/products", { token }),
   createProduct: (token, body) => request("/products", { method: "POST", token, body }),
+  importProducts: (token, body) =>
+    request("/products/import", { method: "POST", token, body }),
   updateProduct: (token, productId, body) =>
     request(`/products/${productId}`, { method: "PUT", token, body }),
   deleteProduct: (token, productId) =>
