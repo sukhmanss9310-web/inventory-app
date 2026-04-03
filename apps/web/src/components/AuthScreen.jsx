@@ -70,15 +70,6 @@ export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
             </div>
           </div>
 
-          <div className="mt-10 rounded-3xl border border-teal-100 bg-teal-50/70 p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">
-              Seeded credentials
-            </p>
-            <p className="mt-3 text-sm text-slate-700">
-              Use company code `atlas-retail` with `owner@ops.local / Admin@123456` after seeding,
-              or create a new company admin below.
-            </p>
-          </div>
         </section>
 
         <section className="space-y-6">
