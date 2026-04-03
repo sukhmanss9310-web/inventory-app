@@ -10,7 +10,8 @@ export const InventorySection = ({
   onSearchChange,
   onCreate,
   onEdit,
-  onDelete
+  onDelete,
+  onResetStock
 }) => (
   <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -79,13 +80,20 @@ export const InventorySection = ({
             </div>
 
             {user.role === "admin" ? (
-              <div className="mt-5 flex gap-3">
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <button
                   type="button"
                   onClick={() => onEdit(product)}
                   className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
                 >
                   Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onResetStock(product)}
+                  className="flex-1 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800 transition hover:bg-amber-100"
+                >
+                  Reset stock
                 </button>
                 <button
                   type="button"

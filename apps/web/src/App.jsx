@@ -4,6 +4,7 @@ import { AuthScreen } from "./components/AuthScreen";
 import { DashboardSection } from "./components/DashboardSection";
 import { DispatchSection } from "./components/DispatchSection";
 import { InventorySection } from "./components/InventorySection";
+import { InventoryResetModal } from "./components/InventoryResetModal";
 import { LogsSection } from "./components/LogsSection";
 import { ProductFormModal } from "./components/ProductFormModal";
 import { ReturnsSection } from "./components/ReturnsSection";
@@ -28,6 +29,11 @@ const sectionsByRole = {
 const initialModalState = {
   open: false,
   mode: "create",
+  product: null
+};
+
+const initialResetModalState = {
+  open: false,
   product: null
 };
 
@@ -61,6 +67,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
   const [productModal, setProductModal] = useState(initialModalState);
+  const [resetModal, setResetModal] = useState(initialResetModalState);
 
   const sections = useMemo(
     () => (user ? sectionsByRole[user.role] || sectionsByRole.staff : []),
@@ -177,9 +184,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-sm font-semibold text-slate-600">
-        Loading workspace...
-      </div>
+        <div className="flex min-h-screen items-center justify-center text-sm font-semibold text-slate-600">
+        Loading company...
+        </div>
     );
   }
 
@@ -200,7 +207,9 @@ export default function App() {
         {activeSection === "dashboard" && user.role === "admin" ? (
           <DashboardSection
             dashboard={dashboard}
+            companyCode={user.companyCode}
             creatingUser={creatingUser}
+            resettingCompany={busy}
             onCreateUser={async (payload) => {
               setCreatingUser(true);
 
@@ -212,6 +221,12 @@ export default function App() {
                 setCreatingUser(false);
               }
             }}
+            onResetCompany={(payload) =>
+              handleAction(
+                () => api.resetCompanyInventory(token, payload),
+                "Company inventory reset successfully."
+              )
+            }
           />
         ) : null}
 
@@ -223,6 +238,7 @@ export default function App() {
             onSearchChange={setSearch}
             onCreate={() => setProductModal({ open: true, mode: "create", product: null })}
             onEdit={(product) => setProductModal({ open: true, mode: "edit", product })}
+            onResetStock={(product) => setResetModal({ open: true, product })}
             onDelete={(product) =>
               handleAction(
                 () => api.deleteProduct(token, product.id),
@@ -297,6 +313,22 @@ export default function App() {
             productModal.mode === "create"
               ? "Product created successfully."
               : "Product updated successfully."
+          )
+        }
+      />
+
+      <InventoryResetModal
+        open={resetModal.open}
+        product={resetModal.product}
+        busy={busy}
+        onClose={() => setResetModal(initialResetModalState)}
+        onSubmit={(payload) =>
+          handleAction(
+            async () => {
+              await api.adjustInventory(token, payload);
+              setResetModal(initialResetModalState);
+            },
+            "Inventory corrected successfully."
           )
         }
       />

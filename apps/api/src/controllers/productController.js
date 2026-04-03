@@ -7,13 +7,13 @@ import {
 } from "../services/productService.js";
 
 export const getProducts = async (req, res) => {
-  const products = await listProducts(req.query);
+  const products = await listProducts(req.query, req.user.companyId);
 
   return res.json({ products });
 };
 
 export const getProduct = async (req, res) => {
-  const product = await getProductById(req.params.productId);
+  const product = await getProductById(req.params.productId, req.user.companyId);
 
   return res.json({ product });
 };

@@ -13,8 +13,12 @@ const serializeProduct = (product) => ({
   updatedAt: product.updatedAt
 });
 
-export const listProducts = async ({ search }) => {
-  const filters = {};
+export const listProducts = async ({ search }, companyId) => {
+  const filters = { companyId };
+
+  if (!filters.companyId) {
+    throw createError("Company context is required", 500);
+  }
 
   if (search) {
     const pattern = new RegExp(search, "i");
@@ -35,8 +39,8 @@ export const listProducts = async ({ search }) => {
   }));
 };
 
-export const getProductById = async (productId) => {
-  const product = await Product.findById(productId);
+export const getProductById = async (productId, companyId) => {
+  const product = await Product.findOne({ _id: productId, companyId });
 
   if (!product) {
     throw createError("Product not found", 404);
@@ -48,12 +52,14 @@ export const getProductById = async (productId) => {
 export const createProduct = async (payload, user) => {
   const product = await Product.create({
     ...payload,
+    companyId: user.companyId,
     sku: payload.sku.toUpperCase(),
     createdBy: user._id,
     updatedBy: user._id
   });
 
   await createActivityLog({
+    companyId: user.companyId,
     actorId: user._id,
     actorName: user.name,
     actorRole: user.role,
@@ -73,7 +79,7 @@ export const createProduct = async (payload, user) => {
 };
 
 export const updateProduct = async (productId, payload, user) => {
-  const product = await Product.findById(productId);
+  const product = await Product.findOne({ _id: productId, companyId: user.companyId });
 
   if (!product) {
     throw createError("Product not found", 404);
@@ -90,6 +96,7 @@ export const updateProduct = async (productId, payload, user) => {
   await product.save();
 
   await createActivityLog({
+    companyId: user.companyId,
     actorId: user._id,
     actorName: user.name,
     actorRole: user.role,
@@ -111,7 +118,7 @@ export const updateProduct = async (productId, payload, user) => {
 };
 
 export const deleteProduct = async (productId, user) => {
-  const product = await Product.findById(productId);
+  const product = await Product.findOne({ _id: productId, companyId: user.companyId });
 
   if (!product) {
     throw createError("Product not found", 404);
@@ -120,6 +127,7 @@ export const deleteProduct = async (productId, user) => {
   await product.deleteOne();
 
   await createActivityLog({
+    companyId: user.companyId,
     actorId: user._id,
     actorName: user.name,
     actorRole: user.role,

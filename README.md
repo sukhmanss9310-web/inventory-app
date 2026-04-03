@@ -128,6 +128,8 @@ MONGODB_URI=mongodb://127.0.0.1:27017/ops-inventory
 JWT_SECRET=replace-this-with-a-long-secret
 JWT_EXPIRES_IN=7d
 CLIENT_URLS=http://localhost:5173,http://localhost:8081,http://localhost:19006
+SEED_COMPANY_NAME=Atlas Retail
+SEED_COMPANY_CODE=atlas-retail
 SEED_ADMIN_EMAIL=owner@ops.local
 SEED_ADMIN_PASSWORD=Admin@123456
 SEED_STAFF_EMAIL=staff@ops.local
@@ -156,8 +158,13 @@ npm run seed
 
 Seeded accounts:
 
+- Company code: `atlas-retail`
 - Admin: `owner@ops.local / Admin@123456`
 - Staff: `staff@ops.local / Staff@123456`
+
+Admins can also use the inventory management screens to reset a product's stock to an exact value with an audit reason when a stock count needs correction.
+
+Admins also have a company-level reset tool. It keeps the company and user accounts, sets every product stock level to `0`, clears dispatch and return history, clears older logs for that company, and then writes one fresh reset log with the reason you entered.
 
 ## Running Locally
 

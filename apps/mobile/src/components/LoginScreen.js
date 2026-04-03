@@ -13,8 +13,14 @@ import { colors } from "../lib/theme";
 
 export const LoginScreen = ({ onLogin, onBootstrap, busy, message }) => {
   const [mode, setMode] = useState("login");
-  const [loginState, setLoginState] = useState({ email: "", password: "" });
-  const [setupState, setSetupState] = useState({ name: "", email: "", password: "" });
+  const [loginState, setLoginState] = useState({ companyCode: "", email: "", password: "" });
+  const [setupState, setSetupState] = useState({
+    companyName: "",
+    companyCode: "",
+    name: "",
+    email: "",
+    password: ""
+  });
 
   return (
     <KeyboardAvoidingView
@@ -31,7 +37,7 @@ export const LoginScreen = ({ onLogin, onBootstrap, busy, message }) => {
 
           <View style={styles.credentialCard}>
             <Text style={styles.credentialLabel}>Seeded admin</Text>
-            <Text style={styles.credentialText}>owner@ops.local / Admin@123456</Text>
+            <Text style={styles.credentialText}>atlas-retail • owner@ops.local / Admin@123456</Text>
           </View>
         </View>
 
@@ -50,13 +56,23 @@ export const LoginScreen = ({ onLogin, onBootstrap, busy, message }) => {
               style={[styles.segmentButton, mode === "setup" && styles.segmentButtonActive]}
             >
               <Text style={[styles.segmentText, mode === "setup" && styles.segmentTextActive]}>
-                First admin
+                New company
               </Text>
             </Pressable>
           </View>
 
           {mode === "login" ? (
             <View style={styles.form}>
+              <TextInput
+                placeholder="Company code"
+                placeholderTextColor={colors.muted}
+                style={styles.input}
+                autoCapitalize="none"
+                value={loginState.companyCode}
+                onChangeText={(value) =>
+                  setLoginState((current) => ({ ...current, companyCode: value }))
+                }
+              />
               <TextInput
                 placeholder="Email"
                 placeholderTextColor={colors.muted}
@@ -86,6 +102,25 @@ export const LoginScreen = ({ onLogin, onBootstrap, busy, message }) => {
             </View>
           ) : (
             <View style={styles.form}>
+              <TextInput
+                placeholder="Company name"
+                placeholderTextColor={colors.muted}
+                style={styles.input}
+                value={setupState.companyName}
+                onChangeText={(value) =>
+                  setSetupState((current) => ({ ...current, companyName: value }))
+                }
+              />
+              <TextInput
+                placeholder="Company code"
+                placeholderTextColor={colors.muted}
+                style={styles.input}
+                autoCapitalize="none"
+                value={setupState.companyCode}
+                onChangeText={(value) =>
+                  setSetupState((current) => ({ ...current, companyCode: value }))
+                }
+              />
               <TextInput
                 placeholder="Full name"
                 placeholderTextColor={colors.muted}
@@ -118,7 +153,7 @@ export const LoginScreen = ({ onLogin, onBootstrap, busy, message }) => {
                 onPress={() => onBootstrap(setupState)}
               >
                 <Text style={styles.secondaryButtonText}>
-                  {busy ? "Creating..." : "Create first admin"}
+                  {busy ? "Creating..." : "Create company admin"}
                 </Text>
               </Pressable>
             </View>

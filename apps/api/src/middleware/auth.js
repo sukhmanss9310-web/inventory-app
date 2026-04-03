@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
+import { Company } from "../models/Company.js";
 import { User } from "../models/User.js";
 
 const getTokenFromHeader = (authorizationHeader = "") => {
@@ -21,6 +22,7 @@ const attachUser = async (req, next, { required }) => {
     }
 
     req.user = null;
+    req.company = null;
     return next();
   }
 
@@ -34,7 +36,22 @@ const attachUser = async (req, next, { required }) => {
       return next(error);
     }
 
+    if (decoded.companyId && String(decoded.companyId) !== String(user.companyId)) {
+      const error = new Error("Invalid or expired token");
+      error.statusCode = 401;
+      return next(error);
+    }
+
+    const company = await Company.findById(decoded.companyId || user.companyId).lean();
+
+    if (!company) {
+      const error = new Error("Company not found");
+      error.statusCode = 401;
+      return next(error);
+    }
+
     req.user = user;
+    req.company = company;
     return next();
   } catch (error) {
     error.statusCode = 401;
@@ -56,4 +73,3 @@ export const requireRole = (...roles) => (req, res, next) => {
 
   return next();
 };
-

@@ -32,9 +32,9 @@ export const getActivityLogs = async ({
   movementType,
   startDate,
   endDate
-}) => {
+}, companyId) => {
   const skip = (page - 1) * limit;
-  const filters = {};
+  const filters = { companyId };
   const dateRange = normalizeDateRange({ startDate, endDate });
 
   if (action) {

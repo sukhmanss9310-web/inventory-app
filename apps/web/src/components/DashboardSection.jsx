@@ -18,7 +18,14 @@ const formatDate = (value) =>
     timeStyle: "short"
   }).format(new Date(value));
 
-export const DashboardSection = ({ dashboard, onCreateUser, creatingUser }) => {
+export const DashboardSection = ({
+  dashboard,
+  companyCode,
+  onCreateUser,
+  onResetCompany,
+  creatingUser,
+  resettingCompany
+}) => {
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -26,6 +33,11 @@ export const DashboardSection = ({ dashboard, onCreateUser, creatingUser }) => {
     role: "staff"
   });
   const [message, setMessage] = useState("");
+  const [resetState, setResetState] = useState({
+    confirmation: "",
+    reason: ""
+  });
+  const [resetMessage, setResetMessage] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -37,6 +49,19 @@ export const DashboardSection = ({ dashboard, onCreateUser, creatingUser }) => {
       setMessage("User created successfully.");
     } catch (error) {
       setMessage(error.message);
+    }
+  };
+
+  const handleResetSubmit = async (event) => {
+    event.preventDefault();
+    setResetMessage("");
+
+    try {
+      await onResetCompany(resetState);
+      setResetState({ confirmation: "", reason: "" });
+      setResetMessage("Company inventory reset successfully.");
+    } catch (error) {
+      setResetMessage(error.message);
     }
   };
 
@@ -109,66 +134,110 @@ export const DashboardSection = ({ dashboard, onCreateUser, creatingUser }) => {
           </div>
         </section>
 
-        <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-          <h3 className="text-xl font-bold text-slate-900">Create team user</h3>
-          <p className="mt-1 text-sm text-slate-500">Add admin or staff accounts without leaving the dashboard.</p>
+        <div className="space-y-4">
+          <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+            <h3 className="text-xl font-bold text-slate-900">Create team user</h3>
+            <p className="mt-1 text-sm text-slate-500">Add admin or staff accounts without leaving the dashboard.</p>
 
-          <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-            <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
-              placeholder="Full name"
-              value={formState.name}
-              onChange={(event) =>
-                setFormState((current) => ({ ...current, name: event.target.value }))
-              }
-              required
-            />
-            <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
-              placeholder="Email"
-              type="email"
-              value={formState.email}
-              onChange={(event) =>
-                setFormState((current) => ({ ...current, email: event.target.value }))
-              }
-              required
-            />
-            <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
-              placeholder="Password"
-              type="password"
-              value={formState.password}
-              onChange={(event) =>
-                setFormState((current) => ({ ...current, password: event.target.value }))
-              }
-              required
-            />
-            <select
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
-              value={formState.role}
-              onChange={(event) =>
-                setFormState((current) => ({ ...current, role: event.target.value }))
-              }
-            >
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
-            </select>
+            <form onSubmit={handleSubmit} className="mt-5 space-y-3">
+              <input
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+                placeholder="Full name"
+                value={formState.name}
+                onChange={(event) =>
+                  setFormState((current) => ({ ...current, name: event.target.value }))
+                }
+                required
+              />
+              <input
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+                placeholder="Email"
+                type="email"
+                value={formState.email}
+                onChange={(event) =>
+                  setFormState((current) => ({ ...current, email: event.target.value }))
+                }
+                required
+              />
+              <input
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+                placeholder="Password"
+                type="password"
+                value={formState.password}
+                onChange={(event) =>
+                  setFormState((current) => ({ ...current, password: event.target.value }))
+                }
+                required
+              />
+              <select
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+                value={formState.role}
+                onChange={(event) =>
+                  setFormState((current) => ({ ...current, role: event.target.value }))
+                }
+              >
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+              </select>
 
-            <button
-              type="submit"
-              disabled={creatingUser}
-              className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {creatingUser ? "Creating..." : "Create user"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={creatingUser}
+                className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {creatingUser ? "Creating..." : "Create user"}
+              </button>
+            </form>
 
-          {message ? (
-            <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              {message}
-            </div>
-          ) : null}
-        </section>
+            {message ? (
+              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                {message}
+              </div>
+            ) : null}
+          </section>
+
+          <section className="rounded-[28px] border border-rose-200 bg-rose-50/60 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+            <h3 className="text-xl font-bold text-slate-900">Danger zone</h3>
+            <p className="mt-1 text-sm text-slate-600">
+              Reset this company’s inventory workspace. This keeps users and products, but sets all product stock to 0,
+              removes dispatch and return history, clears old logs, and writes one fresh reset log.
+            </p>
+
+            <form onSubmit={handleResetSubmit} className="mt-5 space-y-3">
+              <input
+                className="w-full rounded-2xl border border-rose-200 bg-white px-4 py-3 outline-none focus:border-rose-400"
+                placeholder={`Type ${companyCode} to confirm`}
+                value={resetState.confirmation}
+                onChange={(event) =>
+                  setResetState((current) => ({ ...current, confirmation: event.target.value }))
+                }
+                required
+              />
+              <textarea
+                className="min-h-[110px] w-full rounded-2xl border border-rose-200 bg-white px-4 py-3 outline-none focus:border-rose-400"
+                placeholder="Reason for company reset"
+                value={resetState.reason}
+                onChange={(event) =>
+                  setResetState((current) => ({ ...current, reason: event.target.value }))
+                }
+                required
+              />
+              <button
+                type="submit"
+                disabled={resettingCompany}
+                className="w-full rounded-2xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {resettingCompany ? "Resetting..." : "Reset company inventory"}
+              </button>
+            </form>
+
+            {resetMessage ? (
+              <div className="mt-3 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm text-slate-700">
+                {resetMessage}
+              </div>
+            ) : null}
+          </section>
+        </div>
       </div>
 
       <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">

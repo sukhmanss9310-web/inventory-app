@@ -1,7 +1,14 @@
 import { useState } from "react";
 
-const initialLoginState = { email: "", password: "" };
-const initialSetupState = { name: "", email: "", password: "", role: "admin" };
+const initialLoginState = { companyCode: "", email: "", password: "" };
+const initialSetupState = {
+  companyName: "",
+  companyCode: "",
+  name: "",
+  email: "",
+  password: "",
+  role: "admin"
+};
 
 export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
   const [loginState, setLoginState] = useState(initialLoginState);
@@ -68,8 +75,8 @@ export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
               Seeded credentials
             </p>
             <p className="mt-3 text-sm text-slate-700">
-              Use `owner@ops.local / Admin@123456` after seeding, or create the first admin below if
-              the database is empty.
+              Use company code `atlas-retail` with `owner@ops.local / Admin@123456` after seeding,
+              or create a new company admin below.
             </p>
           </div>
         </section>
@@ -83,6 +90,19 @@ export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
             <p className="mt-2 text-sm text-slate-500">For daily dispatch, returns, and inventory review.</p>
 
             <div className="mt-5 space-y-4">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Company code</span>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-teal-500"
+                  value={loginState.companyCode}
+                  onChange={(event) =>
+                    setLoginState((current) => ({ ...current, companyCode: event.target.value }))
+                  }
+                  placeholder="atlas-retail"
+                  required
+                />
+              </label>
+
               <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-slate-600">Email</span>
                 <input
@@ -123,12 +143,38 @@ export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
             onSubmit={handleBootstrap}
             className="rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur"
           >
-            <h2 className="text-2xl font-bold text-slate-900">First-time setup</h2>
+            <h2 className="text-2xl font-bold text-slate-900">Create company admin</h2>
             <p className="mt-2 text-sm text-slate-500">
-              Create the first admin only when this workspace is new.
+              Start a new company workspace with its own admin, products, and activity history.
             </p>
 
             <div className="mt-5 space-y-4">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Company name</span>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-teal-500"
+                  value={setupState.companyName}
+                  onChange={(event) =>
+                    setSetupState((current) => ({ ...current, companyName: event.target.value }))
+                  }
+                  placeholder="Northstar Commerce"
+                  required
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-600">Company code</span>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-teal-500"
+                  value={setupState.companyCode}
+                  onChange={(event) =>
+                    setSetupState((current) => ({ ...current, companyCode: event.target.value }))
+                  }
+                  placeholder="northstar-commerce"
+                  required
+                />
+              </label>
+
               <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-slate-600">Full name</span>
                 <input
@@ -173,15 +219,15 @@ export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
               disabled={busy}
               className="mt-6 w-full rounded-2xl bg-teal-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {busy ? "Creating workspace..." : "Create first admin"}
+              {busy ? "Creating company..." : "Create company admin"}
             </button>
-
-            {message ? (
-              <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {message}
-              </div>
-            ) : null}
           </form>
+
+          {message ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {message}
+            </div>
+          ) : null}
         </section>
       </div>
     </div>

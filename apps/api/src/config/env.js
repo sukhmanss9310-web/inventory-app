@@ -27,6 +27,8 @@ export const env = {
   mongoUri: process.env.MONGODB_URI,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
+  seedCompanyName: process.env.SEED_COMPANY_NAME || "Atlas Retail",
+  seedCompanyCode: process.env.SEED_COMPANY_CODE || "atlas-retail",
   seedAdminEmail: process.env.SEED_ADMIN_EMAIL || "owner@ops.local",
   seedAdminPassword: process.env.SEED_ADMIN_PASSWORD || "Admin@123456",
   seedStaffEmail: process.env.SEED_STAFF_EMAIL || "staff@ops.local",

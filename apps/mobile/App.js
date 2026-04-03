@@ -159,7 +159,7 @@ export default function App() {
     return (
       <SafeAreaView style={styles.loadingScreen}>
         <StatusBar style="dark" />
-        <Text style={styles.loadingText}>Loading workspace...</Text>
+        <Text style={styles.loadingText}>Loading company...</Text>
       </SafeAreaView>
     );
   }
@@ -185,6 +185,8 @@ export default function App() {
         <View style={styles.headerCard}>
           <View>
             <Text style={styles.kicker}>Ops Inventory</Text>
+            <Text style={styles.companyName}>{user.companyName || "Workspace"}</Text>
+            <Text style={styles.companyCode}>{user.companyCode || "company-code"}</Text>
             <Text style={styles.userName}>{user.name}</Text>
             <Text style={styles.userSub}>
               {user.role} • {user.email}
@@ -205,7 +207,17 @@ export default function App() {
 
         <View style={styles.screenBody}>
           {activeTab === "dashboard" && user.role === "admin" ? (
-            <DashboardScreen dashboard={dashboard} />
+            <DashboardScreen
+              dashboard={dashboard}
+              companyCode={user.companyCode}
+              busy={busy}
+              onResetCompany={(payload) =>
+                handleStockAction(
+                  () => api.resetCompanyInventory(token, payload),
+                  "Company inventory reset successfully."
+                )
+              }
+            />
           ) : null}
 
           {activeTab === "inventory" ? <InventoryScreen products={products} /> : null}
@@ -230,6 +242,12 @@ export default function App() {
                 handleStockAction(
                   () => api.deleteProduct(token, product.id),
                   "Product deleted successfully."
+                )
+              }
+              onReset={(product, payload) =>
+                handleStockAction(
+                  () => api.adjustInventory(token, { productId: product.id, ...payload }),
+                  `Stock corrected for ${product.name}.`
                 )
               }
             />
@@ -308,6 +326,19 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 1,
     textTransform: "uppercase"
+  },
+  companyName: {
+    color: colors.dark,
+    fontSize: 22,
+    fontWeight: "800",
+    marginTop: 10
+  },
+  companyCode: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: "700",
+    marginTop: 2,
+    textTransform: "lowercase"
   },
   userName: {
     color: colors.dark,

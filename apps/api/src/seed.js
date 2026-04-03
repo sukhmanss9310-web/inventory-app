@@ -1,6 +1,7 @@
 import { connectDatabase } from "./config/database.js";
 import { env } from "./config/env.js";
 import { ActivityLog } from "./models/ActivityLog.js";
+import { Company } from "./models/Company.js";
 import { Dispatch } from "./models/Dispatch.js";
 import { Product } from "./models/Product.js";
 import { InventoryReturn } from "./models/Return.js";
@@ -14,10 +15,17 @@ const runSeed = async () => {
     Dispatch.deleteMany({}),
     InventoryReturn.deleteMany({}),
     Product.deleteMany({}),
-    User.deleteMany({})
+    User.deleteMany({}),
+    Company.deleteMany({})
   ]);
 
+  const company = await Company.create({
+    name: env.seedCompanyName,
+    code: env.seedCompanyCode
+  });
+
   const admin = await User.create({
+    companyId: company._id,
     name: "Operations Owner",
     email: env.seedAdminEmail,
     password: env.seedAdminPassword,
@@ -25,6 +33,7 @@ const runSeed = async () => {
   });
 
   const staff = await User.create({
+    companyId: company._id,
     name: "Warehouse Staff",
     email: env.seedStaffEmail,
     password: env.seedStaffPassword,
@@ -33,6 +42,7 @@ const runSeed = async () => {
 
   const products = await Product.insertMany([
     {
+      companyId: company._id,
       name: "Boat Rockerz 450",
       sku: "AMZ-BT-450",
       stock: 42,
@@ -41,6 +51,7 @@ const runSeed = async () => {
       updatedBy: admin._id
     },
     {
+      companyId: company._id,
       name: "Nike Downshifter 13",
       sku: "FLP-NK-013",
       stock: 18,
@@ -49,6 +60,7 @@ const runSeed = async () => {
       updatedBy: admin._id
     },
     {
+      companyId: company._id,
       name: "Milton Steel Bottle 1L",
       sku: "AMZ-ML-1L",
       stock: 9,
@@ -57,6 +69,7 @@ const runSeed = async () => {
       updatedBy: admin._id
     },
     {
+      companyId: company._id,
       name: "Samsung 25W Charger",
       sku: "FLP-SM-25W",
       stock: 67,
@@ -67,6 +80,7 @@ const runSeed = async () => {
   ]);
 
   console.log("Seed complete");
+  console.log(`Company: ${company.name} (${company.code})`);
   console.log(`Admin login: ${admin.email} / ${env.seedAdminPassword}`);
   console.log(`Staff login: ${staff.email} / ${env.seedStaffPassword}`);
   console.log(`Products seeded: ${products.length}`);

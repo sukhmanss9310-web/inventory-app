@@ -1,4 +1,4 @@
-const API_URL = "https://inventory-app-2jiw.onrender.com/api";
+const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5001/api").replace(/\/$/, "");
 
 const request = async (path, { method = "GET", token, body } = {}) => {
   const response = await fetch(`${API_URL}${path}`, {
@@ -49,6 +49,10 @@ export const api = {
     request("/inventory/dispatches", { method: "POST", token, body }),
   createReturn: (token, body) =>
     request("/inventory/returns", { method: "POST", token, body }),
+  adjustInventory: (token, body) =>
+    request("/inventory/adjustments", { method: "POST", token, body }),
+  resetCompanyInventory: (token, body) =>
+    request("/inventory/company-reset", { method: "POST", token, body }),
   getDashboard: (token) => request("/dashboard", { token }),
   getLogs: (token, params = {}) => request(`/logs${toQueryString(params)}`, { token })
 };

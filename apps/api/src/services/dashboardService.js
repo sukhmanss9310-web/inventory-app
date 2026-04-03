@@ -22,7 +22,7 @@ const getTotalQuantity = async (Model, match = {}) => {
   return result?.total || 0;
 };
 
-export const getDashboardSummary = async () => {
+export const getDashboardSummary = async (companyId) => {
   const { today, week } = getRangeStarts();
 
   const [
@@ -37,6 +37,7 @@ export const getDashboardSummary = async () => {
     recentActivity
   ] = await Promise.all([
     Product.aggregate([
+      { $match: { companyId } },
       {
         $group: {
           _id: null,
@@ -46,18 +47,19 @@ export const getDashboardSummary = async () => {
       }
     ]),
     Product.find({
+      companyId,
       $expr: { $lte: ["$stock", "$lowStockThreshold"] }
     })
       .sort({ stock: 1, name: 1 })
       .select("name sku stock lowStockThreshold")
       .lean(),
-    getTotalQuantity(Dispatch),
-    getTotalQuantity(Dispatch, { date: { $gte: today } }),
-    getTotalQuantity(Dispatch, { date: { $gte: week } }),
-    getTotalQuantity(InventoryReturn),
-    getTotalQuantity(InventoryReturn, { date: { $gte: today } }),
-    getTotalQuantity(InventoryReturn, { date: { $gte: week } }),
-    ActivityLog.find()
+    getTotalQuantity(Dispatch, { companyId }),
+    getTotalQuantity(Dispatch, { companyId, date: { $gte: today } }),
+    getTotalQuantity(Dispatch, { companyId, date: { $gte: week } }),
+    getTotalQuantity(InventoryReturn, { companyId }),
+    getTotalQuantity(InventoryReturn, { companyId, date: { $gte: today } }),
+    getTotalQuantity(InventoryReturn, { companyId, date: { $gte: week } }),
+    ActivityLog.find({ companyId })
       .sort({ createdAt: -1 })
       .limit(10)
       .lean()

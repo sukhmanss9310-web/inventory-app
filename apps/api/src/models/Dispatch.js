@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const dispatchSchema = new mongoose.Schema(
   {
+    companyId: { type: mongoose.Schema.Types.ObjectId, ref: "Company", required: true },
     productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
     productName: { type: String, required: true, trim: true },
     sku: { type: String, required: true, trim: true },
@@ -15,5 +16,6 @@ const dispatchSchema = new mongoose.Schema(
 );
 
 dispatchSchema.index({ date: -1 });
+dispatchSchema.index({ companyId: 1, date: -1 });
 
 export const Dispatch = mongoose.model("Dispatch", dispatchSchema);

@@ -15,10 +15,11 @@ const emptyFormState = {
   name: "",
   sku: "",
   stock: "0",
-  lowStockThreshold: "5"
+  lowStockThreshold: "5",
+  reason: ""
 };
 
-const ProductCard = ({ item, onEdit, onDelete }) => (
+const ProductCard = ({ item, onEdit, onReset, onDelete }) => (
   <View style={styles.card}>
     <View style={styles.cardHeader}>
       <View>
@@ -47,6 +48,11 @@ const ProductCard = ({ item, onEdit, onDelete }) => (
       <Pressable style={styles.secondaryButton} onPress={() => onEdit(item)}>
         <Text style={styles.secondaryButtonText}>Edit</Text>
       </Pressable>
+      <Pressable style={styles.warningButton} onPress={() => onReset(item)}>
+        <Text style={styles.warningButtonText}>Reset stock</Text>
+      </Pressable>
+    </View>
+    <View style={styles.actionRow}>
       <Pressable style={styles.dangerButton} onPress={() => onDelete(item)}>
         <Text style={styles.dangerButtonText}>Delete</Text>
       </Pressable>
@@ -54,7 +60,14 @@ const ProductCard = ({ item, onEdit, onDelete }) => (
   </View>
 );
 
-export const ProductManagementScreen = ({ products, busy, onCreate, onUpdate, onDelete }) => {
+export const ProductManagementScreen = ({
+  products,
+  busy,
+  onCreate,
+  onUpdate,
+  onDelete,
+  onReset
+}) => {
   const [modalState, setModalState] = useState({ open: false, mode: "create", product: null });
   const [formState, setFormState] = useState(emptyFormState);
   const [message, setMessage] = useState("");
@@ -74,7 +87,8 @@ export const ProductManagementScreen = ({ products, busy, onCreate, onUpdate, on
       name: modalState.product.name,
       sku: modalState.product.sku,
       stock: String(modalState.product.stock),
-      lowStockThreshold: String(modalState.product.lowStockThreshold)
+      lowStockThreshold: String(modalState.product.lowStockThreshold),
+      reason: ""
     });
   }, [modalState]);
 
@@ -107,7 +121,7 @@ export const ProductManagementScreen = ({ products, busy, onCreate, onUpdate, on
           <Text style={styles.kicker}>Admin inventory</Text>
           <Text style={styles.title}>Manage products</Text>
           <Text style={styles.subtitle}>
-            Create, edit, and remove stock items directly from the mobile app.
+            Create, edit, delete, and correct stock items directly from the mobile app.
           </Text>
         </View>
         <Pressable
@@ -135,6 +149,9 @@ export const ProductManagementScreen = ({ products, busy, onCreate, onUpdate, on
             onEdit={(product) =>
               setModalState({ open: true, mode: "edit", product })
             }
+            onReset={(product) =>
+              setModalState({ open: true, mode: "reset", product })
+            }
             onDelete={handleDelete}
           />
         )}
@@ -151,9 +168,17 @@ export const ProductManagementScreen = ({ products, busy, onCreate, onUpdate, on
             <View style={styles.modalHeader}>
               <View>
                 <Text style={styles.modalTitle}>
-                  {modalState.mode === "create" ? "Add product" : "Edit product"}
+                  {modalState.mode === "create"
+                    ? "Add product"
+                    : modalState.mode === "reset"
+                      ? "Reset stock"
+                      : "Edit product"}
                 </Text>
-                <Text style={styles.modalSub}>Keep stock and SKU details accurate.</Text>
+                <Text style={styles.modalSub}>
+                  {modalState.mode === "reset"
+                    ? "Correct the exact stock count and record the reason."
+                    : "Keep stock and SKU details accurate."}
+                </Text>
               </View>
               <Pressable onPress={closeModal} style={styles.modalClose}>
                 <Text style={styles.modalCloseText}>Close</Text>
@@ -161,64 +186,112 @@ export const ProductManagementScreen = ({ products, busy, onCreate, onUpdate, on
             </View>
 
             <View style={styles.form}>
-              <TextInput
-                style={styles.input}
-                placeholder="Product name"
-                placeholderTextColor={colors.muted}
-                value={formState.name}
-                onChangeText={(value) =>
-                  setFormState((current) => ({ ...current, name: value }))
-                }
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="SKU"
-                placeholderTextColor={colors.muted}
-                autoCapitalize="characters"
-                value={formState.sku}
-                onChangeText={(value) =>
-                  setFormState((current) => ({ ...current, sku: value.toUpperCase() }))
-                }
-              />
-              <View style={styles.formRow}>
-                <TextInput
-                  style={[styles.input, styles.rowInput]}
-                  placeholder="Stock"
-                  placeholderTextColor={colors.muted}
-                  keyboardType="number-pad"
-                  value={formState.stock}
-                  onChangeText={(value) =>
-                    setFormState((current) => ({ ...current, stock: value }))
-                  }
-                />
-                <TextInput
-                  style={[styles.input, styles.rowInput]}
-                  placeholder="Threshold"
-                  placeholderTextColor={colors.muted}
-                  keyboardType="number-pad"
-                  value={formState.lowStockThreshold}
-                  onChangeText={(value) =>
-                    setFormState((current) => ({ ...current, lowStockThreshold: value }))
-                  }
-                />
-              </View>
+              {modalState.mode === "reset" ? (
+                <>
+                  <View style={styles.metricRow}>
+                    <View style={styles.metricCard}>
+                      <Text style={styles.metricLabel}>Current stock</Text>
+                      <Text style={styles.metricValue}>{modalState.product?.stock ?? 0}</Text>
+                    </View>
+                    <View style={styles.metricCard}>
+                      <Text style={styles.metricLabel}>SKU</Text>
+                      <Text style={styles.metricValueSmall}>{modalState.product?.sku}</Text>
+                    </View>
+                  </View>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Correct stock value"
+                    placeholderTextColor={colors.muted}
+                    keyboardType="number-pad"
+                    value={formState.stock}
+                    onChangeText={(value) =>
+                      setFormState((current) => ({ ...current, stock: value }))
+                    }
+                  />
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    placeholder="Reason for correction"
+                    placeholderTextColor={colors.muted}
+                    multiline
+                    textAlignVertical="top"
+                    value={formState.reason}
+                    onChangeText={(value) =>
+                      setFormState((current) => ({ ...current, reason: value }))
+                    }
+                  />
+                </>
+              ) : (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Product name"
+                    placeholderTextColor={colors.muted}
+                    value={formState.name}
+                    onChangeText={(value) =>
+                      setFormState((current) => ({ ...current, name: value }))
+                    }
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="SKU"
+                    placeholderTextColor={colors.muted}
+                    autoCapitalize="characters"
+                    value={formState.sku}
+                    onChangeText={(value) =>
+                      setFormState((current) => ({ ...current, sku: value.toUpperCase() }))
+                    }
+                  />
+                  <View style={styles.formRow}>
+                    <TextInput
+                      style={[styles.input, styles.rowInput]}
+                      placeholder="Stock"
+                      placeholderTextColor={colors.muted}
+                      keyboardType="number-pad"
+                      value={formState.stock}
+                      onChangeText={(value) =>
+                        setFormState((current) => ({ ...current, stock: value }))
+                      }
+                    />
+                    <TextInput
+                      style={[styles.input, styles.rowInput]}
+                      placeholder="Threshold"
+                      placeholderTextColor={colors.muted}
+                      keyboardType="number-pad"
+                      value={formState.lowStockThreshold}
+                      onChangeText={(value) =>
+                        setFormState((current) => ({ ...current, lowStockThreshold: value }))
+                      }
+                    />
+                  </View>
+                </>
+              )}
 
               <Pressable
-                style={[styles.primaryButton, busy && styles.buttonDisabled]}
+                style={[
+                  modalState.mode === "reset" ? styles.warningButtonFull : styles.primaryButton,
+                  busy && styles.buttonDisabled
+                ]}
                 disabled={busy}
                 onPress={async () => {
                   try {
-                    const payload = {
-                      name: formState.name,
-                      sku: formState.sku,
-                      stock: Number(formState.stock),
-                      lowStockThreshold: Number(formState.lowStockThreshold)
-                    };
-
-                    if (modalState.mode === "create") {
-                      await onCreate(payload);
+                    if (modalState.mode === "reset") {
+                      await onReset(modalState.product, {
+                        stock: Number(formState.stock),
+                        reason: formState.reason.trim()
+                      });
                     } else {
-                      await onUpdate(modalState.product, payload);
+                      const payload = {
+                        name: formState.name,
+                        sku: formState.sku,
+                        stock: Number(formState.stock),
+                        lowStockThreshold: Number(formState.lowStockThreshold)
+                      };
+
+                      if (modalState.mode === "create") {
+                        await onCreate(payload);
+                      } else {
+                        await onUpdate(modalState.product, payload);
+                      }
                     }
 
                     closeModal();
@@ -228,7 +301,13 @@ export const ProductManagementScreen = ({ products, busy, onCreate, onUpdate, on
                 }}
               >
                 <Text style={styles.primaryButtonText}>
-                  {busy ? "Saving..." : modalState.mode === "create" ? "Create product" : "Save changes"}
+                  {busy
+                    ? "Saving..."
+                    : modalState.mode === "create"
+                      ? "Create product"
+                      : modalState.mode === "reset"
+                        ? "Reset stock"
+                        : "Save changes"}
                 </Text>
               </Pressable>
             </View>
@@ -342,6 +421,12 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     marginTop: 8
   },
+  metricValueSmall: {
+    color: colors.dark,
+    fontSize: 16,
+    fontWeight: "800",
+    marginTop: 10
+  },
   actionRow: {
     flexDirection: "row",
     gap: 10,
@@ -372,6 +457,26 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     textAlign: "center"
+  },
+  warningButton: {
+    flex: 1,
+    borderColor: "#FCD34D",
+    borderRadius: 18,
+    borderWidth: 1,
+    backgroundColor: "#FFFBEB",
+    paddingVertical: 14
+  },
+  warningButtonText: {
+    color: "#B45309",
+    fontSize: 15,
+    fontWeight: "700",
+    textAlign: "center"
+  },
+  warningButtonFull: {
+    borderRadius: 20,
+    backgroundColor: "#D97706",
+    paddingHorizontal: 16,
+    paddingVertical: 16
   },
   dangerButton: {
     flex: 1,
@@ -468,6 +573,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingHorizontal: 16,
     paddingVertical: 15
+  },
+  textArea: {
+    minHeight: 110
   },
   rowInput: {
     flex: 1

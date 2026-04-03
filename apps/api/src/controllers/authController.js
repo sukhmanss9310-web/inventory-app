@@ -1,7 +1,7 @@
 import { loginUser, registerUser } from "../services/authService.js";
 
 export const signup = async (req, res) => {
-  const result = await registerUser(req.body, req.user);
+  const result = await registerUser(req.body, req.user, req.company);
 
   return res.status(201).json({
     message: "User created successfully",
@@ -20,6 +20,9 @@ export const login = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
   return res.json({
-    user: typeof req.user.toSafeObject === "function" ? req.user.toSafeObject() : req.user
+    user:
+      typeof req.user.toSafeObject === "function"
+        ? req.user.toSafeObject(req.company)
+        : req.user
   });
 };

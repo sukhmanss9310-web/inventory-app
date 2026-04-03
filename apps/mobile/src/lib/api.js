@@ -36,5 +36,9 @@ export const api = {
   createDispatch: (token, body) =>
     request("/inventory/dispatches", { method: "POST", token, body }),
   createReturn: (token, body) =>
-    request("/inventory/returns", { method: "POST", token, body })
+    request("/inventory/returns", { method: "POST", token, body }),
+  adjustInventory: (token, body) =>
+    request("/inventory/adjustments", { method: "POST", token, body }),
+  resetCompanyInventory: (token, body) =>
+    request("/inventory/company-reset", { method: "POST", token, body })
 };
