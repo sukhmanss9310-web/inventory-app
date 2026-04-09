@@ -7,6 +7,7 @@ This repo contains:
 - `apps/api`: Node.js + Express + MongoDB API with JWT auth and role-based access
 - `apps/web`: React + Vite + Tailwind web dashboard for admins and staff
 - `apps/mobile`: Expo React Native mobile app for dispatch, returns, and inventory visibility
+- `apps/web` also ships as a PWA for Add to Home Screen install on mobile browsers
 
 ## What It Does
 
@@ -213,6 +214,16 @@ Default local URLs:
 - Web dashboard: `http://localhost:5173`
 - API: `http://localhost:5001`
 - Mobile: Expo dev server output in the terminal
+
+## PWA Install
+
+The web dashboard is configured as a Progressive Web App. On supported mobile browsers you can:
+
+- open the web dashboard
+- choose `Add to Home Screen` or use the in-app install prompt
+- reopen it in standalone mode like an app
+
+The PWA precaches the app shell and static assets for basic offline access without changing the existing API integration.
 
 ## Tests
 

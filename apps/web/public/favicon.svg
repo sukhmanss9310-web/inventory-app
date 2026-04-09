@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Ops Inventory">
+  <rect width="128" height="128" rx="32" fill="#0f172a" />
+  <rect x="20" y="24" width="88" height="20" rx="10" fill="#14b8a6" />
+  <rect x="20" y="56" width="24" height="40" rx="10" fill="#f8fafc" />
+  <rect x="52" y="56" width="24" height="40" rx="10" fill="#cbd5e1" />
+  <rect x="84" y="56" width="24" height="40" rx="10" fill="#fbbf24" />
+</svg>

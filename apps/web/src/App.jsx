@@ -8,6 +8,7 @@ import { InventorySection } from "./components/InventorySection";
 import { InventoryResetModal } from "./components/InventoryResetModal";
 import { LogsSection } from "./components/LogsSection";
 import { PlatformControlSection } from "./components/PlatformControlSection";
+import { PwaInstallPrompt } from "./components/PwaInstallPrompt";
 import { ProductFormModal } from "./components/ProductFormModal";
 import { ReturnsSection } from "./components/ReturnsSection";
 import { useAuth } from "./context/AuthContext";
@@ -454,6 +455,8 @@ export default function App() {
           }
         }}
       />
+
+      <PwaInstallPrompt />
     </>
   );
 }
