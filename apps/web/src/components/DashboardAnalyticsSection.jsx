@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 
 const chartColors = ["#0f766e", "#1d4ed8", "#ea580c", "#e11d48", "#16a34a", "#475569"];
+const trendChart = {
+  width: 720,
+  height: 280,
+  paddingX: 34,
+  paddingTop: 18,
+  paddingBottom: 42
+};
 
 const numberFormatter = new Intl.NumberFormat("en-IN");
 
@@ -12,6 +19,35 @@ const getDefaultTrendIndex = (items) => {
   );
 
   return lastActiveIndex >= 0 ? lastActiveIndex : Math.max(items.length - 1, 0);
+};
+
+const getChartPoints = (items, key, maxValue) => {
+  const innerWidth = trendChart.width - trendChart.paddingX * 2;
+  const innerHeight = trendChart.height - trendChart.paddingTop - trendChart.paddingBottom;
+
+  return items.map((item, index) => {
+    const x = trendChart.paddingX + (innerWidth * index) / Math.max(items.length - 1, 1);
+    const y =
+      trendChart.paddingTop +
+      innerHeight -
+      (Math.max(item[key], 0) / Math.max(maxValue, 1)) * innerHeight;
+
+    return { x, y, item, index };
+  });
+};
+
+const getLinePath = (points) =>
+  points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+
+const getAreaPath = (points) => {
+  const baseline = trendChart.height - trendChart.paddingBottom;
+
+  return [
+    `M ${points[0].x} ${baseline}`,
+    ...points.map((point) => `L ${point.x} ${point.y}`),
+    `L ${points[points.length - 1].x} ${baseline}`,
+    "Z"
+  ].join(" ");
 };
 
 const SummaryPill = ({ label, value, tone = "text-slate-900", background = "bg-slate-100" }) => (
@@ -27,6 +63,17 @@ const TrendCard = ({ trend }) => {
     1,
     ...trend.items.map((item) => Math.max(item.dispatched, item.returned))
   );
+  const dispatchedPoints = useMemo(
+    () => getChartPoints(trend.items, "dispatched", maxValue),
+    [trend.items, maxValue]
+  );
+  const returnedPoints = useMemo(
+    () => getChartPoints(trend.items, "returned", maxValue),
+    [trend.items, maxValue]
+  );
+  const gridValues = Array.from({ length: 5 }, (_, index) =>
+    Math.round((maxValue * (4 - index)) / 4)
+  );
 
   useEffect(() => {
     setSelectedIndex(getDefaultTrendIndex(trend.items));
@@ -34,6 +81,8 @@ const TrendCard = ({ trend }) => {
 
   const selectedItem = trend.items[selectedIndex] || trend.items[trend.items.length - 1];
   const selectedNet = selectedItem.dispatched - selectedItem.returned;
+  const selectedDispatchPoint = dispatchedPoints[selectedIndex] || dispatchedPoints[dispatchedPoints.length - 1];
+  const selectedReturnPoint = returnedPoints[selectedIndex] || returnedPoints[returnedPoints.length - 1];
 
   return (
     <section className="rounded-[28px] border border-white/70 bg-white/85 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:p-6">
@@ -72,7 +121,7 @@ const TrendCard = ({ trend }) => {
         </div>
       </div>
 
-      <div className="mt-5 rounded-[26px] border border-slate-200 bg-slate-50 p-4">
+        <div className="mt-5 rounded-[26px] border border-slate-200 bg-slate-50 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
@@ -104,42 +153,148 @@ const TrendCard = ({ trend }) => {
         </div>
 
         <div className="mt-5 overflow-x-auto pb-2">
-          <div className="flex min-w-max items-end gap-3">
-            {trend.items.map((item, index) => {
-              const selected = index === selectedIndex;
-              const dispatchHeight = Math.max((item.dispatched / maxValue) * 170, item.dispatched ? 12 : 4);
-              const returnHeight = Math.max((item.returned / maxValue) * 170, item.returned ? 12 : 4);
+          <div className="min-w-[640px]">
+            <svg
+              viewBox={`0 0 ${trendChart.width} ${trendChart.height}`}
+              className="h-[260px] w-full"
+              role="img"
+              aria-label="Dispatch and returns interactive line chart"
+            >
+              <defs>
+                <linearGradient id="dispatchAreaGradient" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="#0f766e" stopOpacity="0.24" />
+                  <stop offset="100%" stopColor="#0f766e" stopOpacity="0.02" />
+                </linearGradient>
+                <linearGradient id="returnsAreaGradient" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.18" />
+                  <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.02" />
+                </linearGradient>
+              </defs>
 
-              return (
-                <button
-                  key={item.date}
-                  type="button"
-                  onClick={() => setSelectedIndex(index)}
-                  onMouseEnter={() => setSelectedIndex(index)}
-                  onFocus={() => setSelectedIndex(index)}
-                  aria-pressed={selected}
-                  className={`shrink-0 rounded-[24px] border px-3 py-3 text-center transition ${
-                    selected
-                      ? "border-slate-900 bg-white shadow-[0_10px_25px_rgba(15,23,42,0.08)]"
-                      : "border-transparent bg-transparent hover:border-slate-200 hover:bg-white/70"
-                  }`}
-                  title={`${item.label}: dispatched ${item.dispatched}, returned ${item.returned}`}
-                >
-                  <div className="flex h-[190px] items-end justify-center gap-1.5">
-                    <span
-                      className="w-4 rounded-t-2xl bg-teal-600"
-                      style={{ height: `${dispatchHeight}px` }}
+              {gridValues.map((value, index) => {
+                const y =
+                  trendChart.paddingTop +
+                  ((trendChart.height - trendChart.paddingTop - trendChart.paddingBottom) * index) /
+                    Math.max(gridValues.length - 1, 1);
+
+                return (
+                  <g key={`${value}-${index}`}>
+                    <line
+                      x1={trendChart.paddingX}
+                      y1={y}
+                      x2={trendChart.width - trendChart.paddingX}
+                      y2={y}
+                      stroke="#dbe4ee"
+                      strokeDasharray="4 6"
                     />
-                    <span
-                      className="w-4 rounded-t-2xl bg-amber-400"
-                      style={{ height: `${returnHeight}px` }}
+                    <text
+                      x={trendChart.paddingX - 10}
+                      y={y + 4}
+                      textAnchor="end"
+                      className="fill-slate-400 text-[12px]"
+                    >
+                      {formatCount(value)}
+                    </text>
+                  </g>
+                );
+              })}
+
+              <path d={getAreaPath(dispatchedPoints)} fill="url(#dispatchAreaGradient)" />
+              <path d={getAreaPath(returnedPoints)} fill="url(#returnsAreaGradient)" />
+
+              <path
+                d={getLinePath(dispatchedPoints)}
+                fill="none"
+                stroke="#0f766e"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d={getLinePath(returnedPoints)}
+                fill="none"
+                stroke="#f59e0b"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              <line
+                x1={selectedDispatchPoint.x}
+                y1={trendChart.paddingTop}
+                x2={selectedDispatchPoint.x}
+                y2={trendChart.height - trendChart.paddingBottom}
+                stroke="#94a3b8"
+                strokeDasharray="4 6"
+              />
+
+              {dispatchedPoints.map((point, index) => {
+                const isSelected = index === selectedIndex;
+                const pairedReturnPoint = returnedPoints[index];
+
+                return (
+                  <g key={point.item.date}>
+                    <circle
+                      cx={point.x}
+                      cy={point.y}
+                      r={isSelected ? "7" : "5"}
+                      fill="#ffffff"
+                      stroke="#0f766e"
+                      strokeWidth="3"
                     />
-                  </div>
-                  <p className="mt-3 text-xs font-semibold text-slate-700">{item.label}</p>
-                </button>
-              );
-            })}
+                    <circle
+                      cx={pairedReturnPoint.x}
+                      cy={pairedReturnPoint.y}
+                      r={isSelected ? "7" : "5"}
+                      fill="#ffffff"
+                      stroke="#f59e0b"
+                      strokeWidth="3"
+                    />
+                    <circle
+                      cx={point.x}
+                      cy={(point.y + pairedReturnPoint.y) / 2}
+                      r="18"
+                      fill="transparent"
+                      className="cursor-pointer"
+                      onClick={() => setSelectedIndex(index)}
+                      onMouseEnter={() => setSelectedIndex(index)}
+                    />
+                    {(index % 2 === 0 || index === dispatchedPoints.length - 1) ? (
+                      <text
+                        x={point.x}
+                        y={trendChart.height - 12}
+                        textAnchor="middle"
+                        className={`text-[12px] ${isSelected ? "fill-slate-900" : "fill-slate-400"}`}
+                      >
+                        {point.item.label}
+                      </text>
+                    ) : null}
+                  </g>
+                );
+              })}
+            </svg>
           </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {trend.items.map((item, index) => {
+            const selected = index === selectedIndex;
+
+            return (
+              <button
+                key={item.date}
+                type="button"
+                onClick={() => setSelectedIndex(index)}
+                className={`rounded-full px-3 py-2 text-xs font-semibold transition ${
+                  selected
+                    ? "bg-slate-900 text-white"
+                    : "bg-white text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="mt-4 flex flex-wrap gap-3 text-sm text-slate-500">
