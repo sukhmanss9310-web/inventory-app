@@ -50,6 +50,18 @@ const attachUser = async (req, next, { required }) => {
       return next(error);
     }
 
+    if (company.isActive === false) {
+      const error = new Error("This company workspace has been suspended by the platform owner.");
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    if (user.isActive === false) {
+      const error = new Error("Your account has been disabled by the platform owner.");
+      error.statusCode = 403;
+      return next(error);
+    }
+
     req.user = user;
     req.company = company;
     return next();

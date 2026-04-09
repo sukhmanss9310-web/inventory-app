@@ -13,9 +13,10 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 8 },
     role: {
       type: String,
-      enum: ["admin", "staff"],
+      enum: ["developer", "admin", "staff"],
       default: "staff"
-    }
+    },
+    isActive: { type: Boolean, default: true }
   },
   { timestamps: true }
 );
@@ -44,6 +45,7 @@ userSchema.methods.toSafeObject = function toSafeObject(company = null) {
     name: this.name,
     email: this.email,
     role: this.role,
+    isActive: this.isActive !== false,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt
   };

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 const actionOptions = [
   { value: "", label: "All actions" },
+  { value: "company_access_updated", label: "Company access changes" },
   { value: "dispatch_created", label: "Dispatches" },
   { value: "return_created", label: "Returns / exchanges" },
   { value: "product_created", label: "Products created" },
@@ -10,11 +11,13 @@ const actionOptions = [
   { value: "inventory_imported", label: "Inventory imports" },
   { value: "inventory_adjusted", label: "Inventory resets" },
   { value: "company_reset", label: "Company resets" },
-  { value: "user_created", label: "Users created" }
+  { value: "user_created", label: "Users created" },
+  { value: "user_access_updated", label: "User access changes" }
 ];
 
 const roleOptions = [
   { value: "", label: "All roles" },
+  { value: "developer", label: "Developer" },
   { value: "admin", label: "Admin" },
   { value: "staff", label: "Staff" }
 ];

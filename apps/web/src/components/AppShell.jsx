@@ -1,4 +1,5 @@
 const badgeStyles = {
+  developer: "bg-cyan-50 text-cyan-700 border-cyan-200",
   admin: "bg-teal-50 text-teal-700 border-teal-200",
   staff: "bg-amber-50 text-amber-700 border-amber-200"
 };
@@ -37,7 +38,7 @@ export const AppShell = ({ user, sections, activeSection, onSectionChange, onLog
           <div className="rounded-2xl bg-white/6 p-4">
             <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                Company
+                {user.role === "developer" ? "Platform" : "Company"}
               </p>
               <p className="mt-2 text-sm font-semibold text-white">{user.companyName || "Workspace"}</p>
               <p className="mt-1 text-xs text-slate-400">{user.companyCode || "company-code"}</p>

@@ -3,7 +3,9 @@ import { z } from "zod";
 const objectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid product id");
 const actionSchema = z.enum([
   "company_reset",
+  "company_access_updated",
   "user_created",
+  "user_access_updated",
   "product_created",
   "product_updated",
   "product_deleted",
@@ -42,7 +44,7 @@ export const logQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional().default(20),
   search: z.string().trim().max(100).optional().default(""),
   action: actionSchema.optional(),
-  actorRole: z.enum(["admin", "staff"]).optional(),
+  actorRole: z.enum(["developer", "admin", "staff"]).optional(),
   movementType: z.enum(["dispatch", "return", "exchange"]).optional(),
   startDate: z.string().trim().optional(),
   endDate: z.string().trim().optional()

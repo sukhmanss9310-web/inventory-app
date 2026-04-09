@@ -11,16 +11,8 @@ import {
 } from "react-native";
 import { colors } from "../lib/theme";
 
-export const LoginScreen = ({ onLogin, onBootstrap, busy, message }) => {
-  const [mode, setMode] = useState("login");
+export const LoginScreen = ({ onLogin, busy, message }) => {
   const [loginState, setLoginState] = useState({ companyCode: "", email: "", password: "" });
-  const [setupState, setSetupState] = useState({
-    companyName: "",
-    companyCode: "",
-    name: "",
-    email: "",
-    password: ""
-  });
 
   return (
     <KeyboardAvoidingView
@@ -34,130 +26,52 @@ export const LoginScreen = ({ onLogin, onBootstrap, busy, message }) => {
           <Text style={styles.subtitle}>
             Dispatches reduce stock, returns add it back, and admins keep full visibility.
           </Text>
-
-          <View style={styles.credentialCard}>
-            <Text style={styles.credentialLabel}>Seeded admin</Text>
-            <Text style={styles.credentialText}>atlas-retail • owner@ops.local / Admin@123456</Text>
-          </View>
         </View>
 
         <View style={styles.panel}>
-          <View style={styles.segmentedControl}>
+          <Text style={styles.panelTitle}>Sign in</Text>
+          <Text style={styles.panelSubtitle}>
+            New companies cannot self-register. Access is provisioned only by the platform owner.
+          </Text>
+
+          <View style={styles.form}>
+            <TextInput
+              placeholder="Company code"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+              autoCapitalize="none"
+              value={loginState.companyCode}
+              onChangeText={(value) =>
+                setLoginState((current) => ({ ...current, companyCode: value }))
+              }
+            />
+            <TextInput
+              placeholder="Email"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={loginState.email}
+              onChangeText={(value) => setLoginState((current) => ({ ...current, email: value }))}
+            />
+            <TextInput
+              placeholder="Password"
+              placeholderTextColor={colors.muted}
+              style={styles.input}
+              secureTextEntry
+              value={loginState.password}
+              onChangeText={(value) =>
+                setLoginState((current) => ({ ...current, password: value }))
+              }
+            />
             <Pressable
-              onPress={() => setMode("login")}
-              style={[styles.segmentButton, mode === "login" && styles.segmentButtonActive]}
+              style={[styles.primaryButton, busy && styles.buttonDisabled]}
+              disabled={busy}
+              onPress={() => onLogin(loginState)}
             >
-              <Text style={[styles.segmentText, mode === "login" && styles.segmentTextActive]}>
-                Sign in
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setMode("setup")}
-              style={[styles.segmentButton, mode === "setup" && styles.segmentButtonActive]}
-            >
-              <Text style={[styles.segmentText, mode === "setup" && styles.segmentTextActive]}>
-                New company
-              </Text>
+              <Text style={styles.primaryButtonText}>{busy ? "Signing in..." : "Sign in"}</Text>
             </Pressable>
           </View>
-
-          {mode === "login" ? (
-            <View style={styles.form}>
-              <TextInput
-                placeholder="Company code"
-                placeholderTextColor={colors.muted}
-                style={styles.input}
-                autoCapitalize="none"
-                value={loginState.companyCode}
-                onChangeText={(value) =>
-                  setLoginState((current) => ({ ...current, companyCode: value }))
-                }
-              />
-              <TextInput
-                placeholder="Email"
-                placeholderTextColor={colors.muted}
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={loginState.email}
-                onChangeText={(value) => setLoginState((current) => ({ ...current, email: value }))}
-              />
-              <TextInput
-                placeholder="Password"
-                placeholderTextColor={colors.muted}
-                style={styles.input}
-                secureTextEntry
-                value={loginState.password}
-                onChangeText={(value) =>
-                  setLoginState((current) => ({ ...current, password: value }))
-                }
-              />
-              <Pressable
-                style={[styles.primaryButton, busy && styles.buttonDisabled]}
-                disabled={busy}
-                onPress={() => onLogin(loginState)}
-              >
-                <Text style={styles.primaryButtonText}>{busy ? "Signing in..." : "Sign in"}</Text>
-              </Pressable>
-            </View>
-          ) : (
-            <View style={styles.form}>
-              <TextInput
-                placeholder="Company name"
-                placeholderTextColor={colors.muted}
-                style={styles.input}
-                value={setupState.companyName}
-                onChangeText={(value) =>
-                  setSetupState((current) => ({ ...current, companyName: value }))
-                }
-              />
-              <TextInput
-                placeholder="Company code"
-                placeholderTextColor={colors.muted}
-                style={styles.input}
-                autoCapitalize="none"
-                value={setupState.companyCode}
-                onChangeText={(value) =>
-                  setSetupState((current) => ({ ...current, companyCode: value }))
-                }
-              />
-              <TextInput
-                placeholder="Full name"
-                placeholderTextColor={colors.muted}
-                style={styles.input}
-                value={setupState.name}
-                onChangeText={(value) => setSetupState((current) => ({ ...current, name: value }))}
-              />
-              <TextInput
-                placeholder="Email"
-                placeholderTextColor={colors.muted}
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={setupState.email}
-                onChangeText={(value) => setSetupState((current) => ({ ...current, email: value }))}
-              />
-              <TextInput
-                placeholder="Password"
-                placeholderTextColor={colors.muted}
-                style={styles.input}
-                secureTextEntry
-                value={setupState.password}
-                onChangeText={(value) =>
-                  setSetupState((current) => ({ ...current, password: value }))
-                }
-              />
-              <Pressable
-                style={[styles.secondaryButton, busy && styles.buttonDisabled]}
-                disabled={busy}
-                onPress={() => onBootstrap(setupState)}
-              >
-                <Text style={styles.secondaryButtonText}>
-                  {busy ? "Creating..." : "Create company admin"}
-                </Text>
-              </Pressable>
-            </View>
-          )}
 
           {message ? <Text style={styles.message}>{message}</Text> : null}
         </View>
@@ -203,25 +117,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24
   },
-  credentialCard: {
-    borderColor: colors.border,
-    borderRadius: 24,
-    borderWidth: 1,
-    backgroundColor: colors.surface,
-    padding: 18
-  },
-  credentialLabel: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1
-  },
-  credentialText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: "700",
-    marginTop: 8
-  },
   panel: {
     borderColor: colors.border,
     borderRadius: 28,
@@ -229,28 +124,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: 18
   },
-  segmentedControl: {
-    flexDirection: "row",
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: 18,
-    padding: 4
+  panelTitle: {
+    color: colors.dark,
+    fontSize: 24,
+    fontWeight: "800"
   },
-  segmentButton: {
-    flex: 1,
-    borderRadius: 14,
-    paddingVertical: 12
-  },
-  segmentButtonActive: {
-    backgroundColor: colors.surface
-  },
-  segmentText: {
+  panelSubtitle: {
     color: colors.muted,
     fontSize: 14,
-    fontWeight: "700",
-    textAlign: "center"
-  },
-  segmentTextActive: {
-    color: colors.dark
+    lineHeight: 22,
+    marginTop: 8
   },
   form: {
     gap: 12,
@@ -272,17 +155,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16
   },
   primaryButtonText: {
-    color: colors.surface,
-    fontSize: 16,
-    fontWeight: "800",
-    textAlign: "center"
-  },
-  secondaryButton: {
-    borderRadius: 20,
-    backgroundColor: colors.primary,
-    paddingVertical: 16
-  },
-  secondaryButtonText: {
     color: colors.surface,
     fontSize: 16,
     fontWeight: "800",

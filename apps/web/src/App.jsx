@@ -7,12 +7,14 @@ import { InventoryImportModal } from "./components/InventoryImportModal";
 import { InventorySection } from "./components/InventorySection";
 import { InventoryResetModal } from "./components/InventoryResetModal";
 import { LogsSection } from "./components/LogsSection";
+import { PlatformControlSection } from "./components/PlatformControlSection";
 import { ProductFormModal } from "./components/ProductFormModal";
 import { ReturnsSection } from "./components/ReturnsSection";
 import { useAuth } from "./context/AuthContext";
 import { api } from "./lib/api";
 
 const sectionsByRole = {
+  developer: [{ key: "platform", label: "Platform", description: "Companies and access" }],
   admin: [
     { key: "dashboard", label: "Dashboard", description: "Metrics and low stock" },
     { key: "inventory", label: "Inventory", description: "Products and thresholds" },
@@ -58,6 +60,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [products, setProducts] = useState([]);
   const [dashboard, setDashboard] = useState(null);
+  const [platformOverview, setPlatformOverview] = useState(null);
   const [logs, setLogs] = useState([]);
   const [logFilters, setLogFilters] = useState(initialLogFilters);
   const [logPagination, setLogPagination] = useState({
@@ -97,8 +100,19 @@ export default function App() {
     setProducts(response.products);
   };
 
+  const refreshPlatformOverview = async () => {
+    if (user?.role !== "developer") {
+      setPlatformOverview(null);
+      return;
+    }
+
+    const response = await api.getPlatformOverview(token);
+    setPlatformOverview(response.overview);
+  };
+
   const refreshDashboard = async () => {
     if (user?.role !== "admin") {
+      setDashboard(null);
       return;
     }
 
@@ -130,6 +144,16 @@ export default function App() {
   };
 
   const refreshOperationalData = async () => {
+    if (user?.role === "developer") {
+      setProducts([]);
+      setDashboard(null);
+      setLogs([]);
+      await refreshPlatformOverview();
+      return;
+    }
+
+    setPlatformOverview(null);
+
     // The web client keeps inventory as the source of truth and refreshes admin views from it.
     await refreshProducts();
     await Promise.all([refreshDashboard(), refreshLogs()]);
@@ -140,7 +164,9 @@ export default function App() {
       return;
     }
 
-    setActiveSection(user.role === "admin" ? "dashboard" : "dispatch");
+    setActiveSection(
+      user.role === "developer" ? "platform" : user.role === "admin" ? "dashboard" : "dispatch"
+    );
     refreshOperationalData().catch((error) => setBanner(error.message));
   }, [user]);
 
@@ -166,20 +192,6 @@ export default function App() {
 
     try {
       await login(credentials);
-    } catch (error) {
-      setBanner(error.message);
-      throw error;
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleBootstrap = async (payload) => {
-    setBusy(true);
-    setBanner("");
-
-    try {
-      await signup(payload);
     } catch (error) {
       setBanner(error.message);
       throw error;
@@ -232,7 +244,7 @@ export default function App() {
   }
 
   if (!user) {
-    return <AuthScreen onLogin={handleLogin} onBootstrap={handleBootstrap} busy={busy} />;
+    return <AuthScreen onLogin={handleLogin} busy={busy} />;
   }
 
   return (
@@ -245,6 +257,31 @@ export default function App() {
         onLogout={logout}
         banner={banner}
       >
+        {activeSection === "platform" && user.role === "developer" ? (
+          <PlatformControlSection
+            overview={platformOverview}
+            busy={busy}
+            onCreateCompany={(payload) =>
+              handleAction(
+                () => api.createPlatformCompany(token, payload),
+                "Company workspace created successfully."
+              )
+            }
+            onToggleCompany={(company, isActive) =>
+              handleAction(
+                () => api.updatePlatformCompanyAccess(token, company.id, { isActive }),
+                `${company.name} ${isActive ? "reactivated" : "suspended"} successfully.`
+              )
+            }
+            onToggleUser={(company, managedUser, isActive) =>
+              handleAction(
+                () => api.updatePlatformUserAccess(token, managedUser.id, { isActive }),
+                `${managedUser.name} ${isActive ? "enabled" : "disabled"} in ${company.name}.`
+              )
+            }
+          />
+        ) : null}
+
         {activeSection === "dashboard" && user.role === "admin" ? (
           <DashboardSection
             dashboard={dashboard}

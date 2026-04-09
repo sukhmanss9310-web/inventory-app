@@ -1,18 +1,9 @@
 import { useState } from "react";
 
 const initialLoginState = { companyCode: "", email: "", password: "" };
-const initialSetupState = {
-  companyName: "",
-  companyCode: "",
-  name: "",
-  email: "",
-  password: "",
-  role: "admin"
-};
 
-export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
+export const AuthScreen = ({ onLogin, busy }) => {
   const [loginState, setLoginState] = useState(initialLoginState);
-  const [setupState, setSetupState] = useState(initialSetupState);
   const [message, setMessage] = useState("");
 
   const handleLogin = async (event) => {
@@ -21,17 +12,6 @@ export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
 
     try {
       await onLogin(loginState);
-    } catch (error) {
-      setMessage(error.message);
-    }
-  };
-
-  const handleBootstrap = async (event) => {
-    event.preventDefault();
-    setMessage("");
-
-    try {
-      await onBootstrap(setupState);
     } catch (error) {
       setMessage(error.message);
     }
@@ -130,89 +110,13 @@ export const AuthScreen = ({ onLogin, onBootstrap, busy }) => {
             </button>
           </form>
 
-          <form
-            onSubmit={handleBootstrap}
-            className="rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur"
-          >
-            <h2 className="text-2xl font-bold text-slate-900">Create company admin</h2>
-            <p className="mt-2 text-sm text-slate-500">
-              Start a new company workspace with its own admin, products, and activity history.
+          <section className="rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur">
+            <h2 className="text-2xl font-bold text-slate-900">Access is controlled</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              New companies cannot self-register. A platform owner must create each workspace and
+              approve the admin account before anyone can use the app.
             </p>
-
-            <div className="mt-5 space-y-4">
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Company name</span>
-                <input
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-teal-500"
-                  value={setupState.companyName}
-                  onChange={(event) =>
-                    setSetupState((current) => ({ ...current, companyName: event.target.value }))
-                  }
-                  placeholder="Northstar Commerce"
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Company code</span>
-                <input
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-teal-500"
-                  value={setupState.companyCode}
-                  onChange={(event) =>
-                    setSetupState((current) => ({ ...current, companyCode: event.target.value }))
-                  }
-                  placeholder="northstar-commerce"
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Full name</span>
-                <input
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-teal-500"
-                  value={setupState.name}
-                  onChange={(event) =>
-                    setSetupState((current) => ({ ...current, name: event.target.value }))
-                  }
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Email</span>
-                <input
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-teal-500"
-                  type="email"
-                  value={setupState.email}
-                  onChange={(event) =>
-                    setSetupState((current) => ({ ...current, email: event.target.value }))
-                  }
-                  required
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-600">Password</span>
-                <input
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:border-teal-500"
-                  type="password"
-                  value={setupState.password}
-                  onChange={(event) =>
-                    setSetupState((current) => ({ ...current, password: event.target.value }))
-                  }
-                  required
-                />
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              disabled={busy}
-              className="mt-6 w-full rounded-2xl bg-teal-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {busy ? "Creating company..." : "Create company admin"}
-            </button>
-          </form>
+          </section>
 
           {message ? (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">

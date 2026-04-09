@@ -56,5 +56,12 @@ export const api = {
   resetCompanyInventory: (token, body) =>
     request("/inventory/company-reset", { method: "POST", token, body }),
   getDashboard: (token) => request("/dashboard", { token }),
-  getLogs: (token, params = {}) => request(`/logs${toQueryString(params)}`, { token })
+  getLogs: (token, params = {}) => request(`/logs${toQueryString(params)}`, { token }),
+  getPlatformOverview: (token) => request("/platform/overview", { token }),
+  createPlatformCompany: (token, body) =>
+    request("/platform/companies", { method: "POST", token, body }),
+  updatePlatformCompanyAccess: (token, companyId, body) =>
+    request(`/platform/companies/${companyId}/access`, { method: "PATCH", token, body }),
+  updatePlatformUserAccess: (token, userId, body) =>
+    request(`/platform/users/${userId}/access`, { method: "PATCH", token, body })
 };

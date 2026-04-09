@@ -13,6 +13,7 @@
     "build": "node -e \"console.log('API build step not required')\"",
     "lint": "node --check src/server.js",
     "seed": "node src/seed.js",
+    "provision:developer": "node src/provisionDeveloper.js",
     "test": "node --import ./test/setup.js --test"
   },
   "dependencies": {

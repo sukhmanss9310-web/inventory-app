@@ -20,6 +20,7 @@ import { storage } from "./src/lib/storage";
 import { colors } from "./src/lib/theme";
 
 const tabsByRole = {
+  developer: [{ key: "control", label: "Control" }],
   admin: [
     { key: "dashboard", label: "Dashboard" },
     { key: "inventory", label: "Inventory" },
@@ -71,6 +72,12 @@ export default function App() {
   };
 
   const refreshData = async (authToken = token, nextUser = user) => {
+    if (nextUser?.role === "developer") {
+      setProducts([]);
+      setDashboard(null);
+      return;
+    }
+
     await refreshProducts(authToken);
     await refreshDashboard(authToken, nextUser);
   };
@@ -87,7 +94,13 @@ export default function App() {
         const response = await api.me(storedToken);
         setToken(storedToken);
         setUser(response.user);
-        setActiveTab(response.user.role === "admin" ? "dashboard" : "dispatch");
+        setActiveTab(
+          response.user.role === "developer"
+            ? "control"
+            : response.user.role === "admin"
+              ? "dashboard"
+              : "dispatch"
+        );
         await refreshData(storedToken, response.user);
       } catch (error) {
         await storage.clearToken();
@@ -108,29 +121,14 @@ export default function App() {
       await storage.setToken(response.token);
       setToken(response.token);
       setUser(response.user);
-      setActiveTab(response.user.role === "admin" ? "dashboard" : "dispatch");
+      setActiveTab(
+        response.user.role === "developer"
+          ? "control"
+          : response.user.role === "admin"
+            ? "dashboard"
+            : "dispatch"
+      );
       await refreshData(response.token, response.user);
-    } catch (error) {
-      setMessage(error.message);
-    } finally {
-      setBusy(false);
-      setLoading(false);
-    }
-  };
-
-  const handleBootstrap = async (payload) => {
-    setBusy(true);
-    setMessage("");
-
-    try {
-      const response = await api.signup(payload);
-      if (response.token) {
-        await storage.setToken(response.token);
-        setToken(response.token);
-        setUser(response.user);
-        setActiveTab("dashboard");
-        await refreshData(response.token, response.user);
-      }
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -170,7 +168,6 @@ export default function App() {
         <StatusBar style="dark" />
         <LoginScreen
           onLogin={handleLogin}
-          onBootstrap={handleBootstrap}
           busy={busy}
           message={message}
         />
@@ -206,6 +203,16 @@ export default function App() {
         <TabBar tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
         <View style={styles.screenBody}>
+          {activeTab === "control" && user.role === "developer" ? (
+            <View style={styles.noticeCard}>
+              <Text style={styles.noticeTitle}>Platform controls are on web</Text>
+              <Text style={styles.noticeText}>
+                Sign in on the web dashboard with your developer account to create companies,
+                suspend workspaces, and manage user access.
+              </Text>
+            </View>
+          ) : null}
+
           {activeTab === "dashboard" && user.role === "admin" ? (
             <DashboardScreen
               dashboard={dashboard}
@@ -297,6 +304,24 @@ const styles = StyleSheet.create({
   screenBody: {
     flex: 1,
     marginTop: 16
+  },
+  noticeCard: {
+    borderColor: colors.border,
+    borderRadius: 24,
+    borderWidth: 1,
+    backgroundColor: colors.surface,
+    padding: 20
+  },
+  noticeTitle: {
+    color: colors.dark,
+    fontSize: 20,
+    fontWeight: "800"
+  },
+  noticeText: {
+    color: colors.muted,
+    fontSize: 15,
+    lineHeight: 24,
+    marginTop: 10
   },
   loadingScreen: {
     flex: 1,

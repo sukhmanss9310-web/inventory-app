@@ -16,45 +16,31 @@ const serializeUser = (user, company = null) =>
         name: user.name,
         email: user.email,
         role: user.role,
+        isActive: user.isActive !== false,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt
       };
 
-const createCompanyForSignup = async (payload) => {
-  const companyName = payload.companyName?.trim();
-  const companyCode = normalizeCompanyCode(payload.companyCode || payload.companyName || "");
-
-  if (!companyName) {
-    throw createError("Company name is required", 400);
-  }
-
-  if (!companyCode) {
-    throw createError("Company code is required", 400);
-  }
-
-  const existingCompany = await Company.findOne({ code: companyCode });
-
-  if (existingCompany) {
-    throw createError("A company with this code already exists", 409);
-  }
-
-  return Company.create({
-    name: companyName,
-    code: companyCode
-  });
-};
-
 export const registerUser = async (payload, currentUser = null, currentCompany = null) => {
   const normalizedEmail = payload.email.toLowerCase();
-  let role = payload.role || "staff";
-  let company = currentCompany;
-  let message = "";
 
   if (!currentUser) {
-    company = await createCompanyForSignup(payload);
-    role = "admin";
-  } else if (currentUser.role !== "admin") {
+    throw createError("Public signup is disabled. Contact the platform owner for access.", 403);
+  }
+
+  if (currentUser.role !== "admin") {
     throw createError("Only an admin can create additional users", 403);
+  }
+
+  const company = currentCompany;
+  const role = payload.role || "staff";
+
+  if (company?.isActive === false) {
+    throw createError("This company is suspended. Contact the platform owner.", 403);
+  }
+
+  if (currentUser.isActive === false) {
+    throw createError("Your account is disabled. Contact the platform owner.", 403);
   }
 
   const existingUser = await User.findOne({
@@ -74,19 +60,15 @@ export const registerUser = async (payload, currentUser = null, currentCompany =
     role
   });
 
-  message = currentUser
-    ? `${currentUser.name} created ${user.name} as ${user.role} in ${company.name}.`
-    : `${user.name} created ${company.name} and became its admin.`;
-
   await createActivityLog({
     companyId: company._id,
-    actorId: currentUser?._id || user._id,
-    actorName: currentUser?.name || user.name,
-    actorRole: currentUser?.role || user.role,
+    actorId: currentUser._id,
+    actorName: currentUser.name,
+    actorRole: currentUser.role,
     action: "user_created",
     entityType: "user",
     entityId: user._id,
-    message,
+    message: `${currentUser.name} created ${user.name} as ${user.role} in ${company.name}.`,
     metadata: {
       companyCode: company.code,
       companyName: company.name,
@@ -102,7 +84,7 @@ export const registerUser = async (payload, currentUser = null, currentCompany =
       code: company.code
     },
     user: serializeUser(user, company),
-    token: currentUser ? null : signToken({ userId: user._id, companyId: company._id })
+    token: null
   };
 };
 
@@ -114,6 +96,10 @@ export const loginUser = async ({ companyCode, email, password }) => {
     throw createError("Company not found", 404);
   }
 
+  if (company.isActive === false) {
+    throw createError("This company workspace has been suspended by the platform owner.", 403);
+  }
+
   const user = await User.findOne({
     companyId: company._id,
     email: email.toLowerCase()
@@ -121,6 +107,10 @@ export const loginUser = async ({ companyCode, email, password }) => {
 
   if (!user) {
     throw createError("Invalid email or password", 401);
+  }
+
+  if (user.isActive === false) {
+    throw createError("Your account has been disabled by the platform owner.", 403);
   }
 
   const passwordMatches = await user.comparePassword(password);

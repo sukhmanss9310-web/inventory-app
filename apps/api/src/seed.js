@@ -19,9 +19,27 @@ const runSeed = async () => {
     Company.deleteMany({})
   ]);
 
+  const platformCompany = await Company.create({
+    name: env.seedPlatformCompanyName,
+    code: env.seedPlatformCompanyCode,
+    kind: "platform",
+    isActive: true
+  });
+
+  const developer = await User.create({
+    companyId: platformCompany._id,
+    name: "Platform Owner",
+    email: env.seedDeveloperEmail,
+    password: env.seedDeveloperPassword,
+    role: "developer",
+    isActive: true
+  });
+
   const company = await Company.create({
     name: env.seedCompanyName,
-    code: env.seedCompanyCode
+    code: env.seedCompanyCode,
+    kind: "client",
+    isActive: true
   });
 
   const admin = await User.create({
@@ -29,7 +47,8 @@ const runSeed = async () => {
     name: "Operations Owner",
     email: env.seedAdminEmail,
     password: env.seedAdminPassword,
-    role: "admin"
+    role: "admin",
+    isActive: true
   });
 
   const staff = await User.create({
@@ -37,7 +56,8 @@ const runSeed = async () => {
     name: "Warehouse Staff",
     email: env.seedStaffEmail,
     password: env.seedStaffPassword,
-    role: "staff"
+    role: "staff",
+    isActive: true
   });
 
   const products = await Product.insertMany([
@@ -80,6 +100,7 @@ const runSeed = async () => {
   ]);
 
   console.log("Seed complete");
+  console.log(`Developer login: ${platformCompany.code} • ${developer.email} / ${env.seedDeveloperPassword}`);
   console.log(`Company: ${company.name} (${company.code})`);
   console.log(`Admin login: ${admin.email} / ${env.seedAdminPassword}`);
   console.log(`Staff login: ${staff.email} / ${env.seedStaffPassword}`);

@@ -9,6 +9,7 @@ import { authRouter } from "./routes/authRoutes.js";
 import { dashboardRouter } from "./routes/dashboardRoutes.js";
 import { inventoryRouter } from "./routes/inventoryRoutes.js";
 import { logRouter } from "./routes/logRoutes.js";
+import { platformRouter } from "./routes/platformRoutes.js";
 import { productRouter } from "./routes/productRoutes.js";
 import { errorHandler, notFound } from "./middleware/error.js";
 
@@ -21,7 +22,7 @@ app.set("trust proxy", 1);
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
@@ -69,6 +70,7 @@ app.use("/api/products", productRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/logs", logRouter);
+app.use("/api/platform", platformRouter);
 
 // ✅ Error handling
 app.use(notFound);

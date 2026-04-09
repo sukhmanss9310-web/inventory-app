@@ -20,6 +20,8 @@ This repo contains:
 
 ## Roles
 
+- `developer`
+  Platform owner with control over company creation, company suspension, and user access across all companies
 - `admin`
   Full access, dashboard access, logs access, product management, team user creation
 - `staff`
@@ -68,6 +70,13 @@ Auth:
 - `POST /api/auth/signup`
 - `POST /api/auth/login`
 - `GET /api/auth/me`
+
+Platform owner:
+
+- `GET /api/platform/overview`
+- `POST /api/platform/companies`
+- `PATCH /api/platform/companies/:companyId/access`
+- `PATCH /api/platform/users/:userId/access`
 
 Products:
 
@@ -128,6 +137,10 @@ MONGODB_URI=mongodb://127.0.0.1:27017/ops-inventory
 JWT_SECRET=replace-this-with-a-long-secret
 JWT_EXPIRES_IN=7d
 CLIENT_URLS=http://localhost:5173,http://localhost:8081,http://localhost:19006
+SEED_PLATFORM_COMPANY_NAME=Platform Control
+SEED_PLATFORM_COMPANY_CODE=platform
+SEED_DEVELOPER_EMAIL=developer@ops.local
+SEED_DEVELOPER_PASSWORD=Developer@123456
 SEED_COMPANY_NAME=Atlas Retail
 SEED_COMPANY_CODE=atlas-retail
 SEED_ADMIN_EMAIL=owner@ops.local
@@ -158,9 +171,16 @@ npm run seed
 
 Seeded accounts:
 
+- Developer: `platform • developer@ops.local / Developer@123456`
 - Company code: `atlas-retail`
 - Admin: `owner@ops.local / Admin@123456`
 - Staff: `staff@ops.local / Staff@123456`
+
+If you already have company data and do not want to reseed the database, provision the platform owner without wiping data:
+
+```bash
+npm run provision:developer --workspace api
+```
 
 Admins can also use the inventory management screens to reset a product's stock to an exact value with an audit reason when a stock count needs correction.
 
@@ -204,9 +224,11 @@ npm test
 
 ## Notes
 
-- The first `signup` call creates an admin if the database has no users yet
-- After initialization, only admins can create additional users
+- Public company signup is disabled
+- Only the developer can create company workspaces
+- Existing company admins can still create additional users inside their own company
+- Suspended companies and disabled users cannot log in
 - Dispatch operations prevent negative stock
 - Product changes, dispatches, and returns are all written to activity logs
-- Web includes the full admin reporting and audit workflow
+- Web includes the full admin reporting, audit workflow, and developer control panel
 - Mobile supports dispatch, returns, inventory visibility, and admin product management
