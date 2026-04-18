@@ -151,8 +151,7 @@ const callGemini = async ({ user, company, messages, context }) => {
         },
         body: JSON.stringify({
           generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json"
+            temperature: 0.2
           },
           contents: [
             {

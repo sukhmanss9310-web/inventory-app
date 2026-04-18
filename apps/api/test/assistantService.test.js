@@ -124,7 +124,7 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
   );
 
   assert.match(geminiUrl, /generativelanguage\.googleapis\.com\/v1\/models\/gemini-pro:generateContent/);
-  assert.equal(geminiPayload.generationConfig.responseMimeType, "application/json");
+  assert.equal(geminiPayload.generationConfig.temperature, 0.2);
   assert.equal(geminiPayload.contents[0].role, "user");
   assert.equal(response.reply, "I can prepare that dispatch for confirmation.");
   assert.equal(response.pendingAction.type, "create_dispatch");
