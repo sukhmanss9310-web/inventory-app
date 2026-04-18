@@ -31,15 +31,10 @@ const compactLog = (log) => ({
 });
 
 const extractText = (payload) => {
-  if (typeof payload?.candidates?.[0]?.content?.parts?.[0]?.text === "string") {
-    return payload.candidates[0].content.parts[0].text;
-  }
+  const text = payload.candidates?.[0]?.content?.parts?.[0]?.text;
 
-  if (Array.isArray(payload?.candidates?.[0]?.content?.parts)) {
-    return payload.candidates[0].content.parts
-      .map((part) => part.text || "")
-      .join("")
-      .trim();
+  if (typeof text === "string") {
+    return text;
   }
 
   return "";
@@ -140,7 +135,7 @@ const callGemini = async ({ user, company, messages, context }) => {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${encodeURIComponent(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(
         env.geminiApiKey
       )}`,
       {
@@ -150,12 +145,8 @@ const callGemini = async ({ user, company, messages, context }) => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          generationConfig: {
-            temperature: 0.2
-          },
           contents: [
             {
-              role: "user",
               parts: [{ text: prompt }]
             }
           ]
@@ -164,6 +155,7 @@ const callGemini = async ({ user, company, messages, context }) => {
     );
 
     const payload = await response.json().catch(() => ({}));
+    console.log("Gemini assistant response:", JSON.stringify(payload));
 
     if (!response.ok) {
       throw createError(payload.error?.message || "AI assistant request failed", response.status);

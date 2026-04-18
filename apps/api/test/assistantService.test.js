@@ -123,9 +123,10 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
     company
   );
 
-  assert.match(geminiUrl, /generativelanguage\.googleapis\.com\/v1\/models\/gemini-pro:generateContent/);
-  assert.equal(geminiPayload.generationConfig.temperature, 0.2);
-  assert.equal(geminiPayload.contents[0].role, "user");
+  assert.match(geminiUrl, /generativelanguage\.googleapis\.com\/v1\/models\/gemini-1\.5-flash:generateContent/);
+  assert.deepEqual(Object.keys(geminiPayload), ["contents"]);
+  assert.deepEqual(Object.keys(geminiPayload.contents[0]), ["parts"]);
+  assert.equal(typeof geminiPayload.contents[0].parts[0].text, "string");
   assert.equal(response.reply, "I can prepare that dispatch for confirmation.");
   assert.equal(response.pendingAction.type, "create_dispatch");
   assert.equal(response.pendingAction.payload.productId, product._id);
