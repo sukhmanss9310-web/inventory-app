@@ -123,7 +123,7 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
     company
   );
 
-  assert.match(geminiUrl, /generativelanguage\.googleapis\.com\/v1\/models\/gemini-1\.5-flash:generateContent/);
+  assert.match(geminiUrl, /generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-1\.5-flash:generateContent/);
   assert.deepEqual(Object.keys(geminiPayload), ["contents"]);
   assert.deepEqual(Object.keys(geminiPayload.contents[0]), ["parts"]);
   assert.equal(typeof geminiPayload.contents[0].parts[0].text, "string");
