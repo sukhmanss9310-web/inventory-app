@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-process.env.GEMINI_API_KEY = "test-gemini-key";
+process.env.HUGGINGFACE_API_KEY = "test-huggingface-key";
 
 const { chatWithAssistant, executeAssistantAction } = await import(
   "../src/services/assistantService.js"
@@ -45,8 +45,9 @@ const createQueryChain = (rows) => ({
 });
 
 test("chatWithAssistant answers from inventory data and prepares a safe pending action", async (t) => {
-  let geminiPayload;
-  let geminiUrl;
+  let huggingFacePayload;
+  let huggingFaceUrl;
+  let huggingFaceHeaders;
   const originalFetch = globalThis.fetch;
 
   t.after(() => {
@@ -54,32 +55,25 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
   });
 
   globalThis.fetch = async (url, options) => {
-    geminiUrl = url;
-    geminiPayload = JSON.parse(options.body);
+    huggingFaceUrl = url;
+    huggingFaceHeaders = options.headers;
+    huggingFacePayload = JSON.parse(options.body);
 
     return {
       ok: true,
-      json: async () => ({
-        candidates: [
-          {
-            content: {
-              parts: [
-                {
-                  text: JSON.stringify({
-                    reply: "I can prepare that dispatch for confirmation.",
-                    pendingAction: {
-                      type: "create_dispatch",
-                      productSku: "AMZ-BT-450",
-                      quantity: 2,
-                      note: "AI suggested dispatch"
-                    }
-                  })
-                }
-              ]
+      json: async () => [
+        {
+          generated_text: JSON.stringify({
+            reply: "I can prepare that dispatch for confirmation.",
+            pendingAction: {
+              type: "create_dispatch",
+              productSku: "AMZ-BT-450",
+              quantity: 2,
+              note: "AI suggested dispatch"
             }
-          }
-        ]
-      })
+          })
+        }
+      ]
     };
   };
 
@@ -123,15 +117,70 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
     company
   );
 
-  assert.match(geminiUrl, /generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.0-flash:generateContent/);
-  assert.deepEqual(Object.keys(geminiPayload), ["contents"]);
-  assert.deepEqual(Object.keys(geminiPayload.contents[0]), ["parts"]);
-  assert.equal(typeof geminiPayload.contents[0].parts[0].text, "string");
+  assert.equal(
+    huggingFaceUrl,
+    "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+  );
+  assert.equal(huggingFaceHeaders.Authorization, "Bearer test-huggingface-key");
+  assert.equal(typeof huggingFacePayload.inputs, "string");
+  assert.deepEqual(huggingFacePayload.parameters, {
+    max_new_tokens: 200,
+    temperature: 0.7,
+    return_full_text: false
+  });
   assert.equal(response.reply, "I can prepare that dispatch for confirmation.");
   assert.equal(response.pendingAction.type, "create_dispatch");
   assert.equal(response.pendingAction.payload.productId, product._id);
   assert.equal(response.pendingAction.payload.quantity, 2);
   assert.match(response.pendingAction.summary, /Stock will become 10/);
+});
+
+test("chatWithAssistant returns a stable fallback when Hugging Face fails", async (t) => {
+  const originalFetch = globalThis.fetch;
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 503,
+    json: async () => ({ error: "Model loading" })
+  });
+
+  t.mock.method(Product, "aggregate", async () => [{ totalStock: 12, totalProducts: 1 }]);
+  t.mock.method(Product, "find", (filters) => {
+    if (filters.$expr) {
+      return createQueryChain([product]);
+    }
+
+    return createQueryChain([product]);
+  });
+  let dispatchAggregateCall = 0;
+  let returnAggregateCall = 0;
+
+  t.mock.method(Dispatch, "aggregate", async () => {
+    dispatchAggregateCall += 1;
+    return dispatchAggregateCall < 4 ? [{ total: 0 }] : [];
+  });
+  t.mock.method(Dispatch, "find", () => createQueryChain([]));
+  t.mock.method(InventoryReturn, "aggregate", async () => {
+    returnAggregateCall += 1;
+    return returnAggregateCall < 4 ? [{ total: 0 }] : [];
+  });
+  t.mock.method(InventoryReturn, "find", () => createQueryChain([]));
+  t.mock.method(ActivityLog, "find", () => createQueryChain([]));
+
+  const response = await chatWithAssistant(
+    {
+      messages: [{ role: "user", content: "Show low stock" }]
+    },
+    user,
+    company
+  );
+
+  assert.deepEqual(response.pendingAction, null);
+  assert.equal(response.reply, "AI temporarily unavailable");
 });
 
 test("executeAssistantAction revalidates action payloads before inventory changes", async () => {

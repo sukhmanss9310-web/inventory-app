@@ -31,7 +31,7 @@ const compactLog = (log) => ({
 });
 
 const extractText = (payload) => {
-  const text = payload.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = Array.isArray(payload) ? payload[0]?.generated_text : "No response";
 
   if (typeof text === "string") {
     return text;
@@ -41,12 +41,24 @@ const extractText = (payload) => {
 };
 
 const parseJsonResponse = (rawText) => {
+  const trimmedText = String(rawText || "").trim();
+
   try {
-    return JSON.parse(rawText);
+    return JSON.parse(trimmedText);
   } catch {
+    const jsonMatch = trimmedText.match(/\{[\s\S]*\}/);
+
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[0]);
+      } catch {
+        // Fall through to plain text response.
+      }
+    }
+
     return {
       reply:
-        rawText ||
+        trimmedText ||
         "I could not read the AI response clearly. Please try the question again.",
       pendingAction: null
     };
@@ -119,13 +131,9 @@ ${JSON.stringify({ name: user.name, role: user.role, companyCode: company.code }
 Company inventory context:
 ${JSON.stringify(context)}`;
 
-const callGemini = async ({ user, company, messages, context }) => {
-  if (!env.geminiApiKey) {
-    throw createError("AI assistant is not configured. Add GEMINI_API_KEY to the API environment.", 503);
-  }
-
+const callHuggingFace = async ({ user, company, messages, context }) => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), env.geminiTimeoutMs);
+  const timeout = setTimeout(() => controller.abort(), env.huggingFaceTimeoutMs);
   const prompt = [
     buildSystemPrompt({ user, company, context }),
     "",
@@ -135,33 +143,40 @@ const callGemini = async ({ user, company, messages, context }) => {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(
-        env.geminiApiKey
-      )}`,
+      "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
       {
         method: "POST",
         signal: controller.signal,
         headers: {
+          Authorization: `Bearer ${env.huggingFaceApiKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }]
-            }
-          ]
+          inputs: prompt,
+          parameters: {
+            max_new_tokens: 200,
+            temperature: 0.7,
+            return_full_text: false
+          }
         })
       }
     );
 
     const payload = await response.json().catch(() => ({}));
-    console.log("Gemini assistant response:", JSON.stringify(payload));
 
     if (!response.ok) {
-      throw createError(payload.error?.message || "AI assistant request failed", response.status);
+      return {
+        reply: "AI temporarily unavailable",
+        pendingAction: null
+      };
     }
 
     return parseJsonResponse(extractText(payload));
+  } catch {
+    return {
+      reply: "AI temporarily unavailable",
+      pendingAction: null
+    };
   } finally {
     clearTimeout(timeout);
   }
@@ -329,7 +344,7 @@ const preparePendingAction = async (rawAction, user) => {
 
 export const chatWithAssistant = async ({ messages }, user, company) => {
   const context = await buildAssistantContext(user.companyId);
-  const aiResponse = await callGemini({ user, company, messages, context });
+  const aiResponse = await callHuggingFace({ user, company, messages, context });
   let pendingAction = null;
   let reply = normalizeText(aiResponse.reply, "Assistant reply", { max: 1200 });
 

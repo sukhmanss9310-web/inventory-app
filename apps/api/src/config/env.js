@@ -37,6 +37,6 @@ export const env = {
   seedAdminPassword: process.env.SEED_ADMIN_PASSWORD || "Admin@123456",
   seedStaffEmail: process.env.SEED_STAFF_EMAIL || "staff@ops.local",
   seedStaffPassword: process.env.SEED_STAFF_PASSWORD || "Staff@123456",
-  geminiApiKey: process.env.GEMINI_API_KEY || "",
-  geminiTimeoutMs: Number(process.env.GEMINI_TIMEOUT_MS || 30000)
+  huggingFaceApiKey: process.env.HUGGINGFACE_API_KEY || "",
+  huggingFaceTimeoutMs: Number(process.env.HUGGINGFACE_TIMEOUT_MS || 30000)
 };
