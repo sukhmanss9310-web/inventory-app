@@ -36,5 +36,8 @@ export const env = {
   seedAdminEmail: process.env.SEED_ADMIN_EMAIL || "owner@ops.local",
   seedAdminPassword: process.env.SEED_ADMIN_PASSWORD || "Admin@123456",
   seedStaffEmail: process.env.SEED_STAFF_EMAIL || "staff@ops.local",
-  seedStaffPassword: process.env.SEED_STAFF_PASSWORD || "Staff@123456"
+  seedStaffPassword: process.env.SEED_STAFF_PASSWORD || "Staff@123456",
+  openAiApiKey: process.env.OPENAI_API_KEY || "",
+  openAiModel: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+  openAiTimeoutMs: Number(process.env.OPENAI_TIMEOUT_MS || 30000)
 };

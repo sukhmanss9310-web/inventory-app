@@ -5,6 +5,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import { env } from "./config/env.js";
+import { assistantRouter } from "./routes/assistantRoutes.js";
 import { authRouter } from "./routes/authRoutes.js";
 import { dashboardRouter } from "./routes/dashboardRoutes.js";
 import { inventoryRouter } from "./routes/inventoryRoutes.js";
@@ -71,6 +72,7 @@ app.use("/api/inventory", inventoryRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/logs", logRouter);
 app.use("/api/platform", platformRouter);
+app.use("/api/assistant", assistantRouter);
 
 // ✅ Error handling
 app.use(notFound);

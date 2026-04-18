@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "./components/AppShell";
+import { AssistantSection } from "./components/AssistantSection";
 import { AuthScreen } from "./components/AuthScreen";
 import { DashboardSection } from "./components/DashboardSection";
 import { DispatchSection } from "./components/DispatchSection";
@@ -21,6 +22,7 @@ const sectionsByRole = {
     { key: "inventory", label: "Inventory", description: "Products and thresholds" },
     { key: "dispatch", label: "Dispatch", description: "Reduce stock" },
     { key: "returns", label: "Returns", description: "Add stock back" },
+    { key: "assistant", label: "AI Assistant", description: "Ask and act safely" },
     { key: "logs", label: "Activity", description: "Audit trail" }
   ],
   staff: [
@@ -236,6 +238,34 @@ export default function App() {
     }
   };
 
+  const handleAssistantSend = async (payload) => {
+    setBusy(true);
+    setBanner("");
+
+    try {
+      return await api.chatWithAssistant(token, payload);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleAssistantExecute = async (action) => {
+    setBusy(true);
+    setBanner("");
+
+    try {
+      const response = await api.executeAssistantAction(token, { action });
+      setBanner(response.message || "Assistant action completed.");
+      await refreshOperationalData();
+      return response;
+    } catch (error) {
+      setBanner(error.message);
+      throw error;
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (loading) {
     return (
         <div className="flex min-h-screen items-center justify-center text-sm font-semibold text-slate-600">
@@ -352,6 +382,14 @@ export default function App() {
                 "Return or exchange recorded successfully."
               )
             }
+          />
+        ) : null}
+
+        {activeSection === "assistant" && user.role === "admin" ? (
+          <AssistantSection
+            busy={busy}
+            onSend={handleAssistantSend}
+            onExecuteAction={handleAssistantExecute}
           />
         ) : null}
 

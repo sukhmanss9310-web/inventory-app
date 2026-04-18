@@ -96,6 +96,8 @@ Admin:
 
 - `GET /api/dashboard`
 - `GET /api/logs`
+- `POST /api/assistant/chat`
+- `POST /api/assistant/execute`
 
 ## Setup
 
@@ -148,6 +150,9 @@ SEED_ADMIN_EMAIL=owner@ops.local
 SEED_ADMIN_PASSWORD=Admin@123456
 SEED_STAFF_EMAIL=staff@ops.local
 SEED_STAFF_PASSWORD=Staff@123456
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4.1-mini
+OPENAI_TIMEOUT_MS=30000
 ```
 
 `apps/web/.env.local`
@@ -188,6 +193,8 @@ Admins can also use the inventory management screens to reset a product's stock 
 Admins also have a company-level reset tool. It keeps the company and user accounts, sets every product stock level to `0`, clears dispatch and return history, clears older logs for that company, and then writes one fresh reset log with the reason you entered.
 
 Admins can also bulk-import products from an Excel or CSV file, or from a public Google Sheet. The supported column headers are `name`, `sku`, `stock`, and `lowStockThreshold`. Imports are company-scoped and update existing products by matching SKU.
+
+Admins can also use the AI inventory assistant to ask questions about live inventory, low stock, sales trends, dispatches, and returns. The assistant can prepare dispatch, return, product creation, and stock reset actions, but the admin must confirm before anything changes.
 
 ## Running Locally
 
@@ -241,5 +248,6 @@ npm test
 - Suspended companies and disabled users cannot log in
 - Dispatch operations prevent negative stock
 - Product changes, dispatches, and returns are all written to activity logs
+- AI assistant inventory changes still use the same admin-only APIs and audit logs
 - Web includes the full admin reporting, audit workflow, and developer control panel
 - Mobile supports dispatch, returns, inventory visibility, and admin product management

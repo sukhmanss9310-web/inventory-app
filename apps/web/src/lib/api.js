@@ -57,6 +57,10 @@ export const api = {
     request("/inventory/company-reset", { method: "POST", token, body }),
   getDashboard: (token) => request("/dashboard", { token }),
   getLogs: (token, params = {}) => request(`/logs${toQueryString(params)}`, { token }),
+  chatWithAssistant: (token, body) =>
+    request("/assistant/chat", { method: "POST", token, body }),
+  executeAssistantAction: (token, body) =>
+    request("/assistant/execute", { method: "POST", token, body }),
   getPlatformOverview: (token) => request("/platform/overview", { token }),
   createPlatformCompany: (token, body) =>
     request("/platform/companies", { method: "POST", token, body }),
