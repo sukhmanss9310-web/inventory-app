@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-process.env.OPENAI_API_KEY = "test-openai-key";
+process.env.GEMINI_API_KEY = "test-gemini-key";
 
 const { chatWithAssistant, executeAssistantAction } = await import(
   "../src/services/assistantService.js"
@@ -45,7 +45,8 @@ const createQueryChain = (rows) => ({
 });
 
 test("chatWithAssistant answers from inventory data and prepares a safe pending action", async (t) => {
-  let openAiPayload;
+  let geminiPayload;
+  let geminiUrl;
   const originalFetch = globalThis.fetch;
 
   t.after(() => {
@@ -53,23 +54,28 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
   });
 
   globalThis.fetch = async (url, options) => {
-    openAiPayload = JSON.parse(options.body);
+    geminiUrl = url;
+    geminiPayload = JSON.parse(options.body);
 
     return {
       ok: true,
       json: async () => ({
-        choices: [
+        candidates: [
           {
-            message: {
-              content: JSON.stringify({
-                reply: "I can prepare that dispatch for confirmation.",
-                pendingAction: {
-                  type: "create_dispatch",
-                  productSku: "AMZ-BT-450",
-                  quantity: 2,
-                  note: "AI suggested dispatch"
+            content: {
+              parts: [
+                {
+                  text: JSON.stringify({
+                    reply: "I can prepare that dispatch for confirmation.",
+                    pendingAction: {
+                      type: "create_dispatch",
+                      productSku: "AMZ-BT-450",
+                      quantity: 2,
+                      note: "AI suggested dispatch"
+                    }
+                  })
                 }
-              })
+              ]
             }
           }
         ]
@@ -117,7 +123,9 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
     company
   );
 
-  assert.equal(openAiPayload.response_format.type, "json_object");
+  assert.match(geminiUrl, /generativelanguage\.googleapis\.com\/v1\/models\/gemini-pro:generateContent/);
+  assert.equal(geminiPayload.generationConfig.responseMimeType, "application/json");
+  assert.equal(geminiPayload.contents[0].role, "user");
   assert.equal(response.reply, "I can prepare that dispatch for confirmation.");
   assert.equal(response.pendingAction.type, "create_dispatch");
   assert.equal(response.pendingAction.payload.productId, product._id);

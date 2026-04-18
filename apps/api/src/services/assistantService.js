@@ -31,12 +31,15 @@ const compactLog = (log) => ({
 });
 
 const extractText = (payload) => {
-  if (typeof payload?.choices?.[0]?.message?.content === "string") {
-    return payload.choices[0].message.content;
+  if (typeof payload?.candidates?.[0]?.content?.parts?.[0]?.text === "string") {
+    return payload.candidates[0].content.parts[0].text;
   }
 
-  if (typeof payload?.output_text === "string") {
-    return payload.output_text;
+  if (Array.isArray(payload?.candidates?.[0]?.content?.parts)) {
+    return payload.candidates[0].content.parts
+      .map((part) => part.text || "")
+      .join("")
+      .trim();
   }
 
   return "";
@@ -121,38 +124,45 @@ ${JSON.stringify({ name: user.name, role: user.role, companyCode: company.code }
 Company inventory context:
 ${JSON.stringify(context)}`;
 
-const callOpenAi = async ({ user, company, messages, context }) => {
-  if (!env.openAiApiKey) {
-    throw createError("AI assistant is not configured. Add OPENAI_API_KEY to the API environment.", 503);
+const callGemini = async ({ user, company, messages, context }) => {
+  if (!env.geminiApiKey) {
+    throw createError("AI assistant is not configured. Add GEMINI_API_KEY to the API environment.", 503);
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), env.openAiTimeoutMs);
+  const timeout = setTimeout(() => controller.abort(), env.geminiTimeoutMs);
+  const prompt = [
+    buildSystemPrompt({ user, company, context }),
+    "",
+    "Conversation:",
+    ...messages.map((message) => `${message.role.toUpperCase()}: ${message.content}`)
+  ].join("\n");
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${env.openAiApiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: env.openAiModel,
-        temperature: 0.2,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: buildSystemPrompt({ user, company, context })
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${encodeURIComponent(
+        env.geminiApiKey
+      )}`,
+      {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json"
           },
-          ...messages.map((message) => ({
-            role: message.role,
-            content: message.content
-          }))
-        ]
-      })
-    });
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }]
+            }
+          ]
+        })
+      }
+    );
 
     const payload = await response.json().catch(() => ({}));
 
@@ -328,7 +338,7 @@ const preparePendingAction = async (rawAction, user) => {
 
 export const chatWithAssistant = async ({ messages }, user, company) => {
   const context = await buildAssistantContext(user.companyId);
-  const aiResponse = await callOpenAi({ user, company, messages, context });
+  const aiResponse = await callGemini({ user, company, messages, context });
   let pendingAction = null;
   let reply = normalizeText(aiResponse.reply, "Assistant reply", { max: 1200 });
 
