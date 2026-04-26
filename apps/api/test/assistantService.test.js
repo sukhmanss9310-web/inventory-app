@@ -119,7 +119,7 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
 
   assert.equal(
     huggingFaceUrl,
-    "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+    "https://api-inference.huggingface.co/models/google/flan-t5-base"
   );
   assert.equal(huggingFaceHeaders.Authorization, "Bearer test-huggingface-key");
   assert.equal(typeof huggingFacePayload.inputs, "string");
@@ -135,7 +135,59 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
   assert.match(response.pendingAction.summary, /Stock will become 10/);
 });
 
-test("chatWithAssistant returns a stable fallback when Hugging Face fails", async (t) => {
+test("chatWithAssistant parses object responses from Hugging Face", async (t) => {
+  const originalFetch = globalThis.fetch;
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  globalThis.fetch = async () => ({
+    ok: true,
+    json: async () => ({
+      generated_text: JSON.stringify({
+        reply: "Low stock is under control.",
+        pendingAction: null
+      })
+    })
+  });
+
+  t.mock.method(Product, "aggregate", async () => [{ totalStock: 12, totalProducts: 1 }]);
+  t.mock.method(Product, "find", (filters) => {
+    if (filters.$expr) {
+      return createQueryChain([product]);
+    }
+
+    return createQueryChain([product]);
+  });
+  let dispatchAggregateCall = 0;
+  let returnAggregateCall = 0;
+
+  t.mock.method(Dispatch, "aggregate", async () => {
+    dispatchAggregateCall += 1;
+    return dispatchAggregateCall < 4 ? [{ total: 0 }] : [];
+  });
+  t.mock.method(Dispatch, "find", () => createQueryChain([]));
+  t.mock.method(InventoryReturn, "aggregate", async () => {
+    returnAggregateCall += 1;
+    return returnAggregateCall < 4 ? [{ total: 0 }] : [];
+  });
+  t.mock.method(InventoryReturn, "find", () => createQueryChain([]));
+  t.mock.method(ActivityLog, "find", () => createQueryChain([]));
+
+  const response = await chatWithAssistant(
+    {
+      messages: [{ role: "user", content: "How is inventory doing?" }]
+    },
+    user,
+    company
+  );
+
+  assert.equal(response.reply, "Low stock is under control.");
+  assert.equal(response.pendingAction, null);
+});
+
+test("chatWithAssistant returns a friendly loading message when Hugging Face is loading", async (t) => {
   const originalFetch = globalThis.fetch;
 
   t.after(() => {
@@ -145,7 +197,55 @@ test("chatWithAssistant returns a stable fallback when Hugging Face fails", asyn
   globalThis.fetch = async () => ({
     ok: false,
     status: 503,
-    json: async () => ({ error: "Model loading" })
+    json: async () => ({ error: "Model google/flan-t5-base is currently loading" })
+  });
+
+  t.mock.method(Product, "aggregate", async () => [{ totalStock: 12, totalProducts: 1 }]);
+  t.mock.method(Product, "find", (filters) => {
+    if (filters.$expr) {
+      return createQueryChain([product]);
+    }
+
+    return createQueryChain([product]);
+  });
+  let dispatchAggregateCall = 0;
+  let returnAggregateCall = 0;
+
+  t.mock.method(Dispatch, "aggregate", async () => {
+    dispatchAggregateCall += 1;
+    return dispatchAggregateCall < 4 ? [{ total: 0 }] : [];
+  });
+  t.mock.method(Dispatch, "find", () => createQueryChain([]));
+  t.mock.method(InventoryReturn, "aggregate", async () => {
+    returnAggregateCall += 1;
+    return returnAggregateCall < 4 ? [{ total: 0 }] : [];
+  });
+  t.mock.method(InventoryReturn, "find", () => createQueryChain([]));
+  t.mock.method(ActivityLog, "find", () => createQueryChain([]));
+
+  const response = await chatWithAssistant(
+    {
+      messages: [{ role: "user", content: "Show low stock" }]
+    },
+    user,
+    company
+  );
+
+  assert.deepEqual(response.pendingAction, null);
+  assert.equal(response.reply, "AI model is loading. Please try again in a minute.");
+});
+
+test("chatWithAssistant returns a stable fallback when Hugging Face fails", async (t) => {
+  const originalFetch = globalThis.fetch;
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 500,
+    json: async () => ({ error: "Inference error" })
   });
 
   t.mock.method(Product, "aggregate", async () => [{ totalStock: 12, totalProducts: 1 }]);

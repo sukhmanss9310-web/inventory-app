@@ -30,14 +30,23 @@ const compactLog = (log) => ({
   createdAt: log.createdAt
 });
 
-const extractText = (payload) => {
-  const text = Array.isArray(payload) ? payload[0]?.generated_text : "No response";
+const AI_UNAVAILABLE_MESSAGE = "AI temporarily unavailable";
+const AI_LOADING_MESSAGE = "AI model is loading. Please try again in a minute.";
 
-  if (typeof text === "string") {
-    return text;
+const extractText = (payload) => {
+  if (Array.isArray(payload)) {
+    return payload[0]?.generated_text || "";
   }
 
-  return "";
+  if (typeof payload?.generated_text === "string") {
+    return payload.generated_text;
+  }
+
+  if (typeof payload?.error === "string") {
+    return payload.error;
+  }
+
+  return "No response";
 };
 
 const parseJsonResponse = (rawText) => {
@@ -132,6 +141,13 @@ Company inventory context:
 ${JSON.stringify(context)}`;
 
 const callHuggingFace = async ({ user, company, messages, context }) => {
+  if (!env.huggingFaceApiKey) {
+    return {
+      reply: AI_UNAVAILABLE_MESSAGE,
+      pendingAction: null
+    };
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), env.huggingFaceTimeoutMs);
   const prompt = [
@@ -143,7 +159,7 @@ const callHuggingFace = async ({ user, company, messages, context }) => {
 
   try {
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+      "https://api-inference.huggingface.co/models/google/flan-t5-base",
       {
         method: "POST",
         signal: controller.signal,
@@ -162,19 +178,27 @@ const callHuggingFace = async ({ user, company, messages, context }) => {
       }
     );
 
-    const payload = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => ({}));
+    console.log(data);
 
-    if (!response.ok) {
+    if (typeof data?.error === "string" && /loading/i.test(data.error)) {
       return {
-        reply: "AI temporarily unavailable",
+        reply: AI_LOADING_MESSAGE,
         pendingAction: null
       };
     }
 
-    return parseJsonResponse(extractText(payload));
+    if (!response.ok) {
+      return {
+        reply: AI_UNAVAILABLE_MESSAGE,
+        pendingAction: null
+      };
+    }
+
+    return parseJsonResponse(extractText(data));
   } catch {
     return {
-      reply: "AI temporarily unavailable",
+      reply: AI_UNAVAILABLE_MESSAGE,
       pendingAction: null
     };
   } finally {
