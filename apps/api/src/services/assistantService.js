@@ -33,6 +33,90 @@ const compactLog = (log) => ({
 const AI_UNAVAILABLE_MESSAGE = "AI temporarily unavailable";
 const AI_LOADING_MESSAGE = "AI model is loading. Please try again in a minute.";
 
+const pluralize = (count, singular, plural = `${singular}s`) =>
+  `${count} ${count === 1 ? singular : plural}`;
+
+const formatProductLine = (product) =>
+  `${product.name} (${product.sku}) has ${product.stock} in stock, threshold ${product.lowStockThreshold}`;
+
+const buildLocalAssistantResponse = ({ messages, context, reason = "" }) => {
+  const latestMessage = messages[messages.length - 1]?.content?.toLowerCase() || "";
+  const prefix = reason ? `${reason} I checked your live inventory instead.\n\n` : "";
+
+  if (latestMessage.includes("low stock") || latestMessage.includes("low inventory")) {
+    if (context.lowStockItems.length === 0) {
+      return {
+        reply: `${prefix}No low stock products right now. Total stock is ${context.metrics.totalStock} across ${pluralize(
+          context.metrics.totalProducts,
+          "product"
+        )}.`,
+        pendingAction: null
+      };
+    }
+
+    return {
+      reply: `${prefix}Low stock products:\n${context.lowStockItems
+        .map((product) => `- ${formatProductLine(product)}`)
+        .join("\n")}`,
+      pendingAction: null
+    };
+  }
+
+  if (latestMessage.includes("sold most") || latestMessage.includes("top") || latestMessage.includes("best")) {
+    const topProducts = context.analytics.topProducts.items || [];
+
+    if (topProducts.length === 0) {
+      return {
+        reply: `${prefix}No dispatch history found for the last ${context.analytics.topProducts.windowDays} days.`,
+        pendingAction: null
+      };
+    }
+
+    return {
+      reply: `${prefix}Top dispatched products in the last ${context.analytics.topProducts.windowDays} days:\n${topProducts
+        .map((product) => `- ${product.name} (${product.sku}): ${product.quantity} units`)
+        .join("\n")}`,
+      pendingAction: null
+    };
+  }
+
+  if (
+    latestMessage.includes("dispatch vs returns") ||
+    latestMessage.includes("dispatches vs returns") ||
+    latestMessage.includes("this week") ||
+    latestMessage.includes("7 days")
+  ) {
+    const dispatched = context.metrics.dispatchedLast7Days;
+    const returned = context.metrics.returnsLast7Days;
+
+    return {
+      reply: `${prefix}Last 7 days: dispatched ${dispatched}, returns ${returned}, net outflow ${
+        dispatched - returned
+      }.`,
+      pendingAction: null
+    };
+  }
+
+  if (latestMessage.includes("return")) {
+    return {
+      reply: `${prefix}Returns: ${context.metrics.returnsToday} today, ${context.metrics.returnsLast7Days} in the last 7 days, ${context.metrics.returnsAllTime} total.`,
+      pendingAction: null
+    };
+  }
+
+  return {
+    reply: `${prefix}Inventory summary: ${context.metrics.totalStock} units across ${pluralize(
+      context.metrics.totalProducts,
+      "product"
+    )}. ${pluralize(context.metrics.lowStockItemsCount, "item")} ${
+      context.metrics.lowStockItemsCount === 1 ? "is" : "are"
+    } low stock. Dispatched ${context.metrics.dispatchedLast7Days} and received ${
+      context.metrics.returnsLast7Days
+    } returns in the last 7 days.`,
+    pendingAction: null
+  };
+};
+
 const extractText = (payload) => {
   if (Array.isArray(payload)) {
     return payload[0]?.generated_text || "";
@@ -369,12 +453,24 @@ const preparePendingAction = async (rawAction, user) => {
 export const chatWithAssistant = async ({ messages }, user, company) => {
   const context = await buildAssistantContext(user.companyId);
   const aiResponse = await callHuggingFace({ user, company, messages, context });
+  const shouldUseLocalFallback =
+    aiResponse.reply === AI_UNAVAILABLE_MESSAGE || aiResponse.reply === AI_LOADING_MESSAGE;
+  const response = shouldUseLocalFallback
+    ? buildLocalAssistantResponse({
+        messages,
+        context,
+        reason:
+          aiResponse.reply === AI_LOADING_MESSAGE
+            ? "The AI model is still loading."
+            : "The AI service is unavailable."
+      })
+    : aiResponse;
   let pendingAction = null;
-  let reply = normalizeText(aiResponse.reply, "Assistant reply", { max: 1200 });
+  let reply = normalizeText(response.reply, "Assistant reply", { max: 1200 });
 
-  if (aiResponse.pendingAction) {
+  if (response.pendingAction) {
     try {
-      pendingAction = await preparePendingAction(aiResponse.pendingAction, user);
+      pendingAction = await preparePendingAction(response.pendingAction, user);
     } catch (error) {
       reply = `${reply}\n\n${error.message}`;
       pendingAction = null;

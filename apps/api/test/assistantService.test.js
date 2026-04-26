@@ -232,7 +232,9 @@ test("chatWithAssistant returns a friendly loading message when Hugging Face is 
   );
 
   assert.deepEqual(response.pendingAction, null);
-  assert.equal(response.reply, "AI model is loading. Please try again in a minute.");
+  assert.match(response.reply, /AI model is still loading/);
+  assert.match(response.reply, /Low stock products:/);
+  assert.match(response.reply, /Boat Rockerz 450/);
 });
 
 test("chatWithAssistant returns a stable fallback when Hugging Face fails", async (t) => {
@@ -280,7 +282,9 @@ test("chatWithAssistant returns a stable fallback when Hugging Face fails", asyn
   );
 
   assert.deepEqual(response.pendingAction, null);
-  assert.equal(response.reply, "AI temporarily unavailable");
+  assert.match(response.reply, /AI service is unavailable/);
+  assert.match(response.reply, /Low stock products:/);
+  assert.match(response.reply, /Boat Rockerz 450/);
 });
 
 test("executeAssistantAction revalidates action payloads before inventory changes", async () => {
