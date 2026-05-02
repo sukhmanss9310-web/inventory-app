@@ -34,6 +34,12 @@ const AI_UNAVAILABLE_MESSAGE = "AI temporarily unavailable";
 const AI_LOADING_MESSAGE = "AI model is loading. Please try again in a minute.";
 const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
+const buildProviderFallback = (message) => ({
+  reply: AI_UNAVAILABLE_MESSAGE,
+  pendingAction: null,
+  providerMessage: message
+});
+
 const pluralize = (count, singular, plural = `${singular}s`) =>
   `${count} ${count === 1 ? singular : plural}`;
 
@@ -230,10 +236,7 @@ ${JSON.stringify(context)}`;
 const callGemini = async ({ user, company, messages, context }) => {
   if (!env.geminiApiKey) {
     console.error("Gemini assistant unavailable: missing GEMINI_API_KEY");
-    return {
-      reply: AI_UNAVAILABLE_MESSAGE,
-      pendingAction: null
-    };
+    return buildProviderFallback("Gemini is not configured on the backend. Set GEMINI_API_KEY in Render.");
   }
 
   const controller = new AbortController();
@@ -276,29 +279,25 @@ const callGemini = async ({ user, company, messages, context }) => {
     if (typeof data?.error?.message === "string" && /loading/i.test(data.error.message)) {
       return {
         reply: AI_LOADING_MESSAGE,
-        pendingAction: null
+        pendingAction: null,
+        providerMessage: "Gemini model is still loading."
       };
     }
 
     if (!response.ok) {
+      const message = data?.error?.message || "Unknown Gemini error";
       console.error("Gemini assistant request failed:", {
         model: env.geminiModel,
         status: response.status,
-        message: data?.error?.message || "Unknown Gemini error"
+        message
       });
-      return {
-        reply: AI_UNAVAILABLE_MESSAGE,
-        pendingAction: null
-      };
+      return buildProviderFallback(`Gemini request failed (${response.status}): ${message}`);
     }
 
     return parseJsonResponse(extractText(data));
   } catch (error) {
     console.error("Gemini assistant request crashed:", error.message);
-    return {
-      reply: AI_UNAVAILABLE_MESSAGE,
-      pendingAction: null
-    };
+    return buildProviderFallback(`Gemini request failed before completion: ${error.message}`);
   } finally {
     clearTimeout(timeout);
   }
@@ -473,10 +472,7 @@ export const chatWithAssistant = async ({ messages }, user, company) => {
     ? buildLocalAssistantResponse({
         messages,
         context,
-        reason:
-          aiResponse.reply === AI_LOADING_MESSAGE
-            ? "The AI model is still loading."
-            : "The AI service is unavailable."
+        reason: aiResponse.providerMessage || "The AI service is unavailable."
       })
     : aiResponse;
   let pendingAction = null;

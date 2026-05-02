@@ -247,7 +247,7 @@ test("chatWithAssistant returns a friendly loading message when Gemini is loadin
   );
 
   assert.deepEqual(response.pendingAction, null);
-  assert.match(response.reply, /AI model is still loading/);
+  assert.match(response.reply, /Gemini model is still loading/);
   assert.match(response.reply, /Low stock products:/);
   assert.match(response.reply, /Boat Rockerz 450/);
 });
@@ -297,7 +297,7 @@ test("chatWithAssistant returns a stable fallback when Gemini fails", async (t) 
   );
 
   assert.deepEqual(response.pendingAction, null);
-  assert.match(response.reply, /AI service is unavailable/);
+  assert.match(response.reply, /Gemini request failed \(500\): Inference error/);
   assert.match(response.reply, /Low stock products:/);
   assert.match(response.reply, /Boat Rockerz 450/);
 });
