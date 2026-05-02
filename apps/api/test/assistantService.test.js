@@ -47,6 +47,7 @@ const createQueryChain = (rows) => ({
 test("chatWithAssistant answers from inventory data and prepares a safe pending action", async (t) => {
   let geminiPayload;
   let geminiUrl;
+  let geminiHeaders;
   const originalFetch = globalThis.fetch;
 
   t.after(() => {
@@ -55,13 +56,14 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
 
   globalThis.fetch = async (url, options) => {
     geminiUrl = url;
+    geminiHeaders = options.headers;
     geminiPayload = JSON.parse(options.body);
 
     return {
       ok: true,
       json: async () => ({
         candidates: [
-        {
+          {
             content: {
               parts: [
                 {
@@ -77,7 +79,7 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
                 }
               ]
             }
-        }
+          }
         ]
       })
     };
@@ -125,8 +127,9 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
 
   assert.match(
     geminiUrl,
-    /generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.0-flash:generateContent/
+    /generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.5-flash:generateContent/
   );
+  assert.equal(geminiHeaders["x-goog-api-key"], "test-gemini-key");
   assert.deepEqual(Object.keys(geminiPayload), ["contents"]);
   assert.deepEqual(Object.keys(geminiPayload.contents[0]), ["parts"]);
   assert.equal(typeof geminiPayload.contents[0].parts[0].text, "string");

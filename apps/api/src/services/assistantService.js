@@ -32,6 +32,7 @@ const compactLog = (log) => ({
 
 const AI_UNAVAILABLE_MESSAGE = "AI temporarily unavailable";
 const AI_LOADING_MESSAGE = "AI model is loading. Please try again in a minute.";
+const GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
 const pluralize = (count, singular, plural = `${singular}s`) =>
   `${count} ${count === 1 ? singular : plural}`;
@@ -228,6 +229,7 @@ ${JSON.stringify(context)}`;
 
 const callGemini = async ({ user, company, messages, context }) => {
   if (!env.geminiApiKey) {
+    console.error("Gemini assistant unavailable: missing GEMINI_API_KEY");
     return {
       reply: AI_UNAVAILABLE_MESSAGE,
       pendingAction: null
@@ -245,13 +247,12 @@ const callGemini = async ({ user, company, messages, context }) => {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(
-        env.geminiApiKey
-      )}`,
+      `${GEMINI_API_BASE_URL}/${env.geminiModel}:generateContent`,
       {
         method: "POST",
         signal: controller.signal,
         headers: {
+          "x-goog-api-key": env.geminiApiKey,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -265,7 +266,12 @@ const callGemini = async ({ user, company, messages, context }) => {
     );
 
     const data = await response.json().catch(() => ({}));
-    console.log(data);
+    console.log("Gemini assistant response:", {
+      model: env.geminiModel,
+      status: response.status,
+      ok: response.ok,
+      data
+    });
 
     if (typeof data?.error?.message === "string" && /loading/i.test(data.error.message)) {
       return {
@@ -275,6 +281,11 @@ const callGemini = async ({ user, company, messages, context }) => {
     }
 
     if (!response.ok) {
+      console.error("Gemini assistant request failed:", {
+        model: env.geminiModel,
+        status: response.status,
+        message: data?.error?.message || "Unknown Gemini error"
+      });
       return {
         reply: AI_UNAVAILABLE_MESSAGE,
         pendingAction: null
@@ -282,7 +293,8 @@ const callGemini = async ({ user, company, messages, context }) => {
     }
 
     return parseJsonResponse(extractText(data));
-  } catch {
+  } catch (error) {
+    console.error("Gemini assistant request crashed:", error.message);
     return {
       reply: AI_UNAVAILABLE_MESSAGE,
       pendingAction: null

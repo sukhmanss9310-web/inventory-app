@@ -38,5 +38,6 @@ export const env = {
   seedStaffEmail: process.env.SEED_STAFF_EMAIL || "staff@ops.local",
   seedStaffPassword: process.env.SEED_STAFF_PASSWORD || "Staff@123456",
   geminiApiKey: process.env.GEMINI_API_KEY || "",
+  geminiModel: process.env.GEMINI_MODEL || "gemini-2.5-flash",
   geminiTimeoutMs: Number(process.env.GEMINI_TIMEOUT_MS || 30000)
 };
