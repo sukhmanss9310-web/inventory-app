@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-process.env.HUGGINGFACE_API_KEY = "test-huggingface-key";
+process.env.GEMINI_API_KEY = "test-gemini-key";
 
 const { chatWithAssistant, executeAssistantAction } = await import(
   "../src/services/assistantService.js"
@@ -45,9 +45,8 @@ const createQueryChain = (rows) => ({
 });
 
 test("chatWithAssistant answers from inventory data and prepares a safe pending action", async (t) => {
-  let huggingFacePayload;
-  let huggingFaceUrl;
-  let huggingFaceHeaders;
+  let geminiPayload;
+  let geminiUrl;
   const originalFetch = globalThis.fetch;
 
   t.after(() => {
@@ -55,25 +54,32 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
   });
 
   globalThis.fetch = async (url, options) => {
-    huggingFaceUrl = url;
-    huggingFaceHeaders = options.headers;
-    huggingFacePayload = JSON.parse(options.body);
+    geminiUrl = url;
+    geminiPayload = JSON.parse(options.body);
 
     return {
       ok: true,
-      json: async () => [
+      json: async () => ({
+        candidates: [
         {
-          generated_text: JSON.stringify({
-            reply: "I can prepare that dispatch for confirmation.",
-            pendingAction: {
-              type: "create_dispatch",
-              productSku: "AMZ-BT-450",
-              quantity: 2,
-              note: "AI suggested dispatch"
+            content: {
+              parts: [
+                {
+                  text: JSON.stringify({
+                    reply: "I can prepare that dispatch for confirmation.",
+                    pendingAction: {
+                      type: "create_dispatch",
+                      productSku: "AMZ-BT-450",
+                      quantity: 2,
+                      note: "AI suggested dispatch"
+                    }
+                  })
+                }
+              ]
             }
-          })
         }
-      ]
+        ]
+      })
     };
   };
 
@@ -117,17 +123,13 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
     company
   );
 
-  assert.equal(
-    huggingFaceUrl,
-    "https://api-inference.huggingface.co/models/google/flan-t5-base"
+  assert.match(
+    geminiUrl,
+    /generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.0-flash:generateContent/
   );
-  assert.equal(huggingFaceHeaders.Authorization, "Bearer test-huggingface-key");
-  assert.equal(typeof huggingFacePayload.inputs, "string");
-  assert.deepEqual(huggingFacePayload.parameters, {
-    max_new_tokens: 200,
-    temperature: 0.7,
-    return_full_text: false
-  });
+  assert.deepEqual(Object.keys(geminiPayload), ["contents"]);
+  assert.deepEqual(Object.keys(geminiPayload.contents[0]), ["parts"]);
+  assert.equal(typeof geminiPayload.contents[0].parts[0].text, "string");
   assert.equal(response.reply, "I can prepare that dispatch for confirmation.");
   assert.equal(response.pendingAction.type, "create_dispatch");
   assert.equal(response.pendingAction.payload.productId, product._id);
@@ -135,7 +137,7 @@ test("chatWithAssistant answers from inventory data and prepares a safe pending 
   assert.match(response.pendingAction.summary, /Stock will become 10/);
 });
 
-test("chatWithAssistant parses object responses from Hugging Face", async (t) => {
+test("chatWithAssistant parses Gemini responses", async (t) => {
   const originalFetch = globalThis.fetch;
 
   t.after(() => {
@@ -145,10 +147,20 @@ test("chatWithAssistant parses object responses from Hugging Face", async (t) =>
   globalThis.fetch = async () => ({
     ok: true,
     json: async () => ({
-      generated_text: JSON.stringify({
-        reply: "Low stock is under control.",
-        pendingAction: null
-      })
+      candidates: [
+        {
+          content: {
+            parts: [
+              {
+                text: JSON.stringify({
+                  reply: "Low stock is under control.",
+                  pendingAction: null
+                })
+              }
+            ]
+          }
+        }
+      ]
     })
   });
 
@@ -187,7 +199,7 @@ test("chatWithAssistant parses object responses from Hugging Face", async (t) =>
   assert.equal(response.pendingAction, null);
 });
 
-test("chatWithAssistant returns a friendly loading message when Hugging Face is loading", async (t) => {
+test("chatWithAssistant returns a friendly loading message when Gemini is loading", async (t) => {
   const originalFetch = globalThis.fetch;
 
   t.after(() => {
@@ -197,7 +209,7 @@ test("chatWithAssistant returns a friendly loading message when Hugging Face is 
   globalThis.fetch = async () => ({
     ok: false,
     status: 503,
-    json: async () => ({ error: "Model google/flan-t5-base is currently loading" })
+    json: async () => ({ error: { message: "Gemini model is currently loading" } })
   });
 
   t.mock.method(Product, "aggregate", async () => [{ totalStock: 12, totalProducts: 1 }]);
@@ -237,7 +249,7 @@ test("chatWithAssistant returns a friendly loading message when Hugging Face is 
   assert.match(response.reply, /Boat Rockerz 450/);
 });
 
-test("chatWithAssistant returns a stable fallback when Hugging Face fails", async (t) => {
+test("chatWithAssistant returns a stable fallback when Gemini fails", async (t) => {
   const originalFetch = globalThis.fetch;
 
   t.after(() => {
@@ -247,7 +259,7 @@ test("chatWithAssistant returns a stable fallback when Hugging Face fails", asyn
   globalThis.fetch = async () => ({
     ok: false,
     status: 500,
-    json: async () => ({ error: "Inference error" })
+    json: async () => ({ error: { message: "Inference error" } })
   });
 
   t.mock.method(Product, "aggregate", async () => [{ totalStock: 12, totalProducts: 1 }]);

@@ -118,12 +118,14 @@ const buildLocalAssistantResponse = ({ messages, context, reason = "" }) => {
 };
 
 const extractText = (payload) => {
-  if (Array.isArray(payload)) {
-    return payload[0]?.generated_text || "";
+  const text = payload?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  if (typeof text === "string") {
+    return text;
   }
 
-  if (typeof payload?.generated_text === "string") {
-    return payload.generated_text;
+  if (typeof payload?.error?.message === "string") {
+    return payload.error.message;
   }
 
   if (typeof payload?.error === "string") {
@@ -224,8 +226,8 @@ ${JSON.stringify({ name: user.name, role: user.role, companyCode: company.code }
 Company inventory context:
 ${JSON.stringify(context)}`;
 
-const callHuggingFace = async ({ user, company, messages, context }) => {
-  if (!env.huggingFaceApiKey) {
+const callGemini = async ({ user, company, messages, context }) => {
+  if (!env.geminiApiKey) {
     return {
       reply: AI_UNAVAILABLE_MESSAGE,
       pendingAction: null
@@ -233,7 +235,7 @@ const callHuggingFace = async ({ user, company, messages, context }) => {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), env.huggingFaceTimeoutMs);
+  const timeout = setTimeout(() => controller.abort(), env.geminiTimeoutMs);
   const prompt = [
     buildSystemPrompt({ user, company, context }),
     "",
@@ -243,21 +245,21 @@ const callHuggingFace = async ({ user, company, messages, context }) => {
 
   try {
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/google/flan-t5-base",
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(
+        env.geminiApiKey
+      )}`,
       {
         method: "POST",
         signal: controller.signal,
         headers: {
-          Authorization: `Bearer ${env.huggingFaceApiKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          inputs: prompt,
-          parameters: {
-            max_new_tokens: 200,
-            temperature: 0.7,
-            return_full_text: false
-          }
+          contents: [
+            {
+              parts: [{ text: prompt }]
+            }
+          ]
         })
       }
     );
@@ -265,7 +267,7 @@ const callHuggingFace = async ({ user, company, messages, context }) => {
     const data = await response.json().catch(() => ({}));
     console.log(data);
 
-    if (typeof data?.error === "string" && /loading/i.test(data.error)) {
+    if (typeof data?.error?.message === "string" && /loading/i.test(data.error.message)) {
       return {
         reply: AI_LOADING_MESSAGE,
         pendingAction: null
@@ -452,7 +454,7 @@ const preparePendingAction = async (rawAction, user) => {
 
 export const chatWithAssistant = async ({ messages }, user, company) => {
   const context = await buildAssistantContext(user.companyId);
-  const aiResponse = await callHuggingFace({ user, company, messages, context });
+  const aiResponse = await callGemini({ user, company, messages, context });
   const shouldUseLocalFallback =
     aiResponse.reply === AI_UNAVAILABLE_MESSAGE || aiResponse.reply === AI_LOADING_MESSAGE;
   const response = shouldUseLocalFallback
