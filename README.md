@@ -153,6 +153,11 @@ SEED_STAFF_PASSWORD=Staff@123456
 GEMINI_API_KEY=
 GEMINI_MODEL=gemini-2.5-flash
 GEMINI_TIMEOUT_MS=30000
+KEEP_ALIVE_URL=
+KEEP_ALIVE_ENABLED=true
+KEEP_ALIVE_MIN_MINUTES=10
+KEEP_ALIVE_MAX_MINUTES=14
+KEEP_ALIVE_TIMEOUT_MS=10000
 ```
 
 `apps/web/.env.local`
@@ -221,6 +226,10 @@ Default local URLs:
 - Web dashboard: `http://localhost:5173`
 - API: `http://localhost:5001`
 - Mobile: Expo dev server output in the terminal
+
+## Keep Alive
+
+The API exposes `GET /health` and `GET /api/health` for uptime monitors. In production, the API can also ping its own `/health` endpoint every 10 to 14 minutes by setting `KEEP_ALIVE_URL` to the Render service URL. Render's `RENDER_EXTERNAL_URL` is used automatically when available.
 
 ## PWA Install
 

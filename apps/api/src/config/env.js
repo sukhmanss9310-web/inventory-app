@@ -39,5 +39,10 @@ export const env = {
   seedStaffPassword: process.env.SEED_STAFF_PASSWORD || "Staff@123456",
   geminiApiKey: process.env.GEMINI_API_KEY || "",
   geminiModel: process.env.GEMINI_MODEL || "gemini-2.5-flash",
-  geminiTimeoutMs: Number(process.env.GEMINI_TIMEOUT_MS || 30000)
+  geminiTimeoutMs: Number(process.env.GEMINI_TIMEOUT_MS || 30000),
+  keepAliveUrl: process.env.KEEP_ALIVE_URL || process.env.RENDER_EXTERNAL_URL || "",
+  keepAliveEnabled: process.env.KEEP_ALIVE_ENABLED !== "false",
+  keepAliveMinMinutes: Number(process.env.KEEP_ALIVE_MIN_MINUTES || 10),
+  keepAliveMaxMinutes: Number(process.env.KEEP_ALIVE_MAX_MINUTES || 14),
+  keepAliveTimeoutMs: Number(process.env.KEEP_ALIVE_TIMEOUT_MS || 10000)
 };

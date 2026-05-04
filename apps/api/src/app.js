@@ -57,13 +57,17 @@ app.use(
   })
 );
 
-// ✅ Health check
-app.get("/api/health", (req, res) => {
+const healthHandler = (req, res) => {
   res.json({
     status: "ok",
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
   });
-});
+};
+
+// ✅ Health checks for Render and external uptime monitors
+app.get("/health", healthHandler);
+app.get("/api/health", healthHandler);
 
 // ✅ Routes
 app.use("/api/auth", authRouter);

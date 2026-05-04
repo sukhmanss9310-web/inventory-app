@@ -1,6 +1,7 @@
 import { connectDatabase } from "./config/database.js";
 import { env } from "./config/env.js";
 import { app } from "./app.js";
+import { startKeepAlive } from "./utils/keepAlive.js";
 
 const startServer = async () => {
   try {
@@ -10,6 +11,7 @@ const startServer = async () => {
 
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`API running on port ${PORT}`);
+      startKeepAlive(env);
     });
 
   } catch (error) {

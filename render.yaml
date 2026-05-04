@@ -29,3 +29,10 @@ services:
         sync: false
       - key: SEED_STAFF_PASSWORD
         sync: false
+      - key: KEEP_ALIVE_URL
+        fromService:
+          type: web
+          name: ops-inventory-api
+          property: host
+      - key: KEEP_ALIVE_ENABLED
+        value: true
