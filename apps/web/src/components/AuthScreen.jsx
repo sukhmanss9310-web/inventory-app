@@ -25,28 +25,35 @@ export const AuthScreen = ({ onLogin, busy }) => {
             Internal operations
           </div>
           <h1 className="mt-5 max-w-xl text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-            Inventory control for fast-moving Amazon and Flipkart operations.
+            Spend less time managing your orders.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-            Dispatch, returns, exchanges, and stock updates stay in one system so your team can
-            work quickly without mismatched inventory.
+            Track different items across locations as they move through your inventory based on
+            serial numbers and batches.
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">Stock control</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900">Real-time</p>
-              <p className="mt-2 text-sm text-slate-600">Low stock warnings and audit-friendly edits.</p>
+              <p className="text-sm font-semibold text-slate-500">Track effectively</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">Complete visibility</p>
+              <p className="mt-2 text-sm text-slate-600">
+                Track different items across locations as they move through your inventory.
+              </p>
             </div>
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">Staff workflow</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900">Fast entry</p>
-              <p className="mt-2 text-sm text-slate-600">Large actions for dispatches and returns.</p>
+              <p className="text-sm font-semibold text-slate-500">Scale efficiently</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">Warehouse management</p>
+              <p className="mt-2 text-sm text-slate-600">
+                Initiate transfer orders, generate picklists, and dispatch from the nearest warehouse.
+              </p>
             </div>
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">Admin visibility</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900">One dashboard</p>
-              <p className="mt-2 text-sm text-slate-600">Daily movement, low stock, and activity logs.</p>
+              <p className="text-sm font-semibold text-slate-500">Collaborate better</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">Dedicated customer portal</p>
+              <p className="mt-2 text-sm text-slate-600">
+                Build stronger customer relationships with a dedicated space for transactions and
+                conversations.
+              </p>
             </div>
           </div>
 
@@ -109,14 +116,6 @@ export const AuthScreen = ({ onLogin, busy }) => {
               {busy ? "Signing in..." : "Sign in"}
             </button>
           </form>
-
-          <section className="rounded-[28px] border border-slate-200 bg-white/90 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur">
-            <h2 className="text-2xl font-bold text-slate-900">Access is controlled</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              New companies cannot self-register. A platform owner must create each workspace and
-              approve the admin account before anyone can use the app.
-            </p>
-          </section>
 
           {message ? (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
