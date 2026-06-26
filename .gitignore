@@ -1,8 +1,16 @@
 node_modules
 .DS_Store
+
+# Environment files and local secrets
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!**/.env.example
+!**/.env.local.example
+.envrc
+*.pem
+*.key
+
 dist
 coverage
 .next
