@@ -68,30 +68,30 @@ export const DashboardSection = ({
 
   if (!dashboard) {
     return (
-      <div className="rounded-[28px] border border-white/70 bg-white/85 p-8 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
         <p className="text-sm text-slate-500">Loading dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+    <div className="space-y-5">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Admin overview</p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">Operational dashboard</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">Admin overview</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Operations dashboard</h2>
           </div>
-          <p className="max-w-xl text-sm text-slate-500">
-            Monitor stock exposure, dispatch pace, and recent activity from one place.
+          <p className="max-w-xl text-sm leading-6 text-slate-500">
+            Review stock exposure, movement volume, and recent team activity before the next dispatch run.
           </p>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {metricLabels.map((metric) => (
-            <div key={metric.key} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">{metric.label}</p>
-              <p className={`mt-3 text-3xl font-extrabold ${metric.tone}`}>
+            <div key={metric.key} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{metric.label}</p>
+              <p className={`mt-2 text-3xl font-black tracking-tight ${metric.tone}`}>
                 {dashboard.metrics[metric.key]}
               </p>
             </div>
@@ -101,28 +101,28 @@ export const DashboardSection = ({
 
       <DashboardAnalyticsSection analytics={dashboard.analytics} />
 
-      <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+      <div className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Low stock watchlist</h3>
-              <p className="mt-1 text-sm text-slate-500">Restock these items before overselling.</p>
+              <h3 className="text-xl font-black text-slate-950">Low-stock watchlist</h3>
+              <p className="mt-1 text-sm text-slate-500">Items that need attention before more orders go out.</p>
             </div>
           </div>
 
           <div className="mt-5 space-y-3">
             {dashboard.lowStockItems.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
                 No low stock items right now.
               </div>
             ) : (
               dashboard.lowStockItems.map((product) => (
                 <div
                   key={product.id}
-                  className="flex flex-col gap-3 rounded-3xl border border-rose-100 bg-rose-50/70 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-xl border border-rose-100 bg-rose-50/80 p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
-                    <p className="font-semibold text-slate-900">{product.name}</p>
+                    <p className="font-bold text-slate-900">{product.name}</p>
                     <p className="text-sm text-slate-500">{product.sku}</p>
                   </div>
                   <div className="flex items-center gap-3 text-sm">
@@ -138,13 +138,13 @@ export const DashboardSection = ({
         </section>
 
         <div className="space-y-4">
-          <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-            <h3 className="text-xl font-bold text-slate-900">Create team user</h3>
-            <p className="mt-1 text-sm text-slate-500">Add admin or staff accounts without leaving the dashboard.</p>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+            <h3 className="text-xl font-black text-slate-950">Create team user</h3>
+            <p className="mt-1 text-sm text-slate-500">Invite an admin or staff member into this workspace.</p>
 
             <form onSubmit={handleSubmit} className="mt-5 space-y-3">
               <input
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
                 placeholder="Full name"
                 value={formState.name}
                 onChange={(event) =>
@@ -153,7 +153,7 @@ export const DashboardSection = ({
                 required
               />
               <input
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
                 placeholder="Email"
                 type="email"
                 value={formState.email}
@@ -163,7 +163,7 @@ export const DashboardSection = ({
                 required
               />
               <input
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
                 placeholder="Password"
                 type="password"
                 value={formState.password}
@@ -173,7 +173,7 @@ export const DashboardSection = ({
                 required
               />
               <select
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
                 value={formState.role}
                 onChange={(event) =>
                   setFormState((current) => ({ ...current, role: event.target.value }))
@@ -186,29 +186,28 @@ export const DashboardSection = ({
               <button
                 type="submit"
                 disabled={creatingUser}
-                className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-60"
               >
                 {creatingUser ? "Creating..." : "Create user"}
               </button>
             </form>
 
             {message ? (
-              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                 {message}
               </div>
             ) : null}
           </section>
 
-          <section className="rounded-[28px] border border-rose-200 bg-rose-50/60 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-            <h3 className="text-xl font-bold text-slate-900">Danger zone</h3>
+          <section className="rounded-2xl border border-rose-200 bg-rose-50 p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+            <h3 className="text-xl font-black text-slate-950">Danger zone</h3>
             <p className="mt-1 text-sm text-slate-600">
-              Reset this company’s inventory workspace. This keeps users and products, but sets all product stock to 0,
-              removes dispatch and return history, clears old logs, and writes one fresh reset log.
+              Reset inventory data for this company. Users and products stay; stock and movement history are cleared.
             </p>
 
             <form onSubmit={handleResetSubmit} className="mt-5 space-y-3">
               <input
-                className="w-full rounded-2xl border border-rose-200 bg-white px-4 py-3 outline-none focus:border-rose-400"
+                className="w-full rounded-xl border border-rose-200 bg-white px-4 py-3 outline-none focus:border-rose-400"
                 placeholder={`Type ${companyCode} to confirm`}
                 value={resetState.confirmation}
                 onChange={(event) =>
@@ -217,7 +216,7 @@ export const DashboardSection = ({
                 required
               />
               <textarea
-                className="min-h-[110px] w-full rounded-2xl border border-rose-200 bg-white px-4 py-3 outline-none focus:border-rose-400"
+                className="min-h-[110px] w-full rounded-xl border border-rose-200 bg-white px-4 py-3 outline-none focus:border-rose-400"
                 placeholder="Reason for company reset"
                 value={resetState.reason}
                 onChange={(event) =>
@@ -228,14 +227,14 @@ export const DashboardSection = ({
               <button
                 type="submit"
                 disabled={resettingCompany}
-                className="w-full rounded-2xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-rose-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-rose-600 disabled:opacity-60"
               >
                 {resettingCompany ? "Resetting..." : "Reset company inventory"}
               </button>
             </form>
 
             {resetMessage ? (
-              <div className="mt-3 rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm text-slate-700">
+              <div className="mt-3 rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm text-slate-700">
                 {resetMessage}
               </div>
             ) : null}
@@ -243,18 +242,18 @@ export const DashboardSection = ({
         </div>
       </div>
 
-      <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-        <h3 className="text-xl font-bold text-slate-900">Recent activity</h3>
-        <p className="mt-1 text-sm text-slate-500">Latest actions from the operations team.</p>
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+        <h3 className="text-xl font-black text-slate-950">Recent activity</h3>
+        <p className="mt-1 text-sm text-slate-500">Latest stock and user actions in this workspace.</p>
 
         <div className="mt-5 space-y-3">
           {dashboard.recentActivity.map((item) => (
             <div
               key={item.id}
-              className="flex flex-col gap-2 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <p className="font-semibold text-slate-900">{item.message}</p>
+                <p className="font-bold text-slate-900">{item.message}</p>
                 <p className="mt-1 text-sm text-slate-500">
                   {item.actorName} • {item.actorRole}
                 </p>

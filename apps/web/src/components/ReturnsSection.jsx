@@ -34,19 +34,19 @@ export const ReturnsSection = ({ products, onSubmit, busy }) => {
   };
 
   return (
-    <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
       <div className="max-w-2xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Returns</p>
-        <h2 className="mt-2 text-3xl font-bold text-slate-900">Add stock back in</h2>
-        <p className="mt-2 text-sm text-slate-500">
-          Returns and exchanges increase stock immediately and leave a clean audit trail.
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">Returns</p>
+        <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Receive stock back</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          Log returns and exchanges so stock is updated and the movement is traceable.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-6 grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <div className="space-y-4 rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
           <select
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-base outline-none focus:border-teal-500"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-base outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
             value={formState.productId}
             onChange={(event) =>
               setFormState((current) => ({ ...current, productId: event.target.value }))
@@ -63,7 +63,7 @@ export const ReturnsSection = ({ products, onSubmit, busy }) => {
 
           <div className="grid gap-3 sm:grid-cols-2">
             <input
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-base outline-none focus:border-teal-500"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-base outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
               type="number"
               min="1"
               placeholder="Quantity"
@@ -74,7 +74,7 @@ export const ReturnsSection = ({ products, onSubmit, busy }) => {
               required
             />
             <select
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-base outline-none focus:border-teal-500"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-base outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
               value={formState.type}
               onChange={(event) =>
                 setFormState((current) => ({ ...current, type: event.target.value }))
@@ -86,7 +86,7 @@ export const ReturnsSection = ({ products, onSubmit, busy }) => {
           </div>
 
           <input
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-base outline-none focus:border-teal-500"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-4 text-base outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
             placeholder="Optional note"
             value={formState.note}
             onChange={(event) =>
@@ -97,36 +97,36 @@ export const ReturnsSection = ({ products, onSubmit, busy }) => {
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-3xl bg-amber-500 px-4 py-4 text-lg font-bold text-slate-950 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-amber-500 px-4 py-4 text-base font-black text-slate-950 transition hover:bg-amber-400 disabled:opacity-60"
           >
             {busy ? "Saving..." : "Record return / exchange"}
           </button>
         </div>
 
-        <div className="rounded-[28px] border border-slate-200 bg-white p-5">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Stock preview</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Stock preview</p>
           {selectedProduct ? (
             <div className="mt-5 space-y-4">
               <div>
-                <h3 className="text-2xl font-bold text-slate-900">{selectedProduct.name}</h3>
+                <h3 className="text-2xl font-black text-slate-950">{selectedProduct.name}</h3>
                 <p className="mt-1 text-sm text-slate-500">{selectedProduct.sku}</p>
               </div>
-              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Current stock</p>
-                <p className="mt-2 text-4xl font-extrabold text-slate-900">{selectedProduct.stock}</p>
+                <p className="mt-2 text-4xl font-black text-slate-950">{selectedProduct.stock}</p>
               </div>
-              <p className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <p className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                 This submission will increase stock by the entered quantity.
               </p>
             </div>
           ) : (
-            <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+            <div className="mt-5 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
               Select a product to confirm stock before posting the return or exchange.
             </div>
           )}
 
           {message ? (
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
               {message}
             </div>
           ) : null}

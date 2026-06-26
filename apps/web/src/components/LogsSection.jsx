@@ -60,12 +60,12 @@ export const LogsSection = ({
   const endItem = Math.min(pagination.page * pagination.limit, pagination.total);
 
   return (
-    <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Activity logs</p>
-          <h2 className="mt-2 text-3xl font-bold text-slate-900">Every stock movement, tracked</h2>
-          <p className="mt-2 max-w-2xl text-sm text-slate-500">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">Activity logs</p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Audit trail</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
             Search by user, SKU, product, or action and browse the full audit trail page by page.
           </p>
         </div>
@@ -75,14 +75,14 @@ export const LogsSection = ({
       </div>
 
       <form
-        className="mt-6 grid gap-3 rounded-[26px] border border-slate-200 bg-slate-50 p-4 lg:grid-cols-2 xl:grid-cols-3"
+        className="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-2 xl:grid-cols-3"
         onSubmit={(event) => {
           event.preventDefault();
           onApplyFilters({ ...formState, page: 1 });
         }}
       >
         <input
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-teal-500"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
           placeholder="Search user, product, SKU, message"
           value={formState.search}
           onChange={(event) =>
@@ -90,7 +90,7 @@ export const LogsSection = ({
           }
         />
         <select
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-teal-500"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
           value={formState.action}
           onChange={(event) =>
             setFormState((current) => ({ ...current, action: event.target.value }))
@@ -103,7 +103,7 @@ export const LogsSection = ({
           ))}
         </select>
         <select
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-teal-500"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
           value={formState.actorRole}
           onChange={(event) =>
             setFormState((current) => ({ ...current, actorRole: event.target.value }))
@@ -116,7 +116,7 @@ export const LogsSection = ({
           ))}
         </select>
         <select
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-teal-500"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
           value={formState.movementType}
           onChange={(event) =>
             setFormState((current) => ({ ...current, movementType: event.target.value }))
@@ -129,7 +129,7 @@ export const LogsSection = ({
           ))}
         </select>
         <input
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-teal-500"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
           type="date"
           value={formState.startDate}
           onChange={(event) =>
@@ -137,7 +137,7 @@ export const LogsSection = ({
           }
         />
         <input
-          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-teal-500"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
           type="date"
           value={formState.endDate}
           onChange={(event) =>
@@ -147,13 +147,13 @@ export const LogsSection = ({
         <div className="flex flex-col gap-3 sm:flex-row xl:col-span-3">
           <button
             type="submit"
-            className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-800"
           >
             Apply filters
           </button>
           <button
             type="button"
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
             onClick={() =>
               onApplyFilters({
                 search: "",
@@ -170,7 +170,7 @@ export const LogsSection = ({
             Reset
           </button>
           <select
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-teal-500 sm:ml-auto"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-teal-600 sm:ml-auto"
             value={String(formState.limit)}
             onChange={(event) => {
               const nextLimit = Number(event.target.value);
@@ -190,18 +190,18 @@ export const LogsSection = ({
 
       <div className="mt-6 space-y-3">
         {loading ? (
-          <div className="rounded-[26px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
             Loading logs...
           </div>
         ) : logs.length === 0 ? (
-          <div className="rounded-[26px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
             No logs matched the current filters.
           </div>
         ) : (
           logs.map((log) => (
             <div
               key={log.id}
-              className="rounded-[26px] border border-slate-200 bg-slate-50 p-5"
+              className="rounded-xl border border-slate-200 bg-slate-50 p-5"
             >
               <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                 <div>
@@ -225,7 +225,7 @@ export const LogsSection = ({
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-3 font-semibold text-slate-900">{log.message}</p>
+                  <p className="mt-3 font-bold text-slate-900">{log.message}</p>
                   <p className="mt-1 text-sm text-slate-500">
                     {log.actorName} • {log.actorRole}
                     {log.productName ? ` • ${log.productName}` : ""}
@@ -247,7 +247,7 @@ export const LogsSection = ({
             type="button"
             disabled={pagination.page <= 1 || loading}
             onClick={() => onPageChange(pagination.page - 1)}
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:opacity-50"
           >
             Previous
           </button>
@@ -255,7 +255,7 @@ export const LogsSection = ({
             type="button"
             disabled={pagination.page >= pagination.totalPages || loading}
             onClick={() => onPageChange(pagination.page + 1)}
-            className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-50"
           >
             Next
           </button>

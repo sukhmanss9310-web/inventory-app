@@ -83,15 +83,15 @@ export const AssistantSection = ({ busy, onSend, onExecuteAction }) => {
   };
 
   return (
-    <section className="overflow-hidden rounded-[28px] border border-white/70 bg-white/85 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
       <div className="border-b border-slate-100 p-5 sm:p-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">
-          AI inventory assistant
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">
+          Inventory assistant
         </p>
-        <h2 className="mt-2 text-3xl font-bold text-slate-900">Ask your stock data</h2>
-        <p className="mt-2 max-w-2xl text-sm text-slate-500">
-          Analyze live inventory, dispatches, returns, and low stock. Admin actions require a final
-          confirmation before anything changes.
+        <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Ask your stock data</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          Ask questions about live inventory, movement trends, and low-stock risk. Any stock-changing
+          action still needs admin confirmation.
         </p>
       </div>
 
@@ -104,20 +104,20 @@ export const AssistantSection = ({ busy, onSend, onExecuteAction }) => {
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[92%] rounded-3xl px-4 py-3 text-sm leading-6 sm:max-w-[78%] ${
+                  className={`max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-6 sm:max-w-[78%] ${
                     message.role === "user"
-                      ? "bg-slate-900 text-white"
-                      : "border border-slate-200 bg-slate-50 text-slate-700"
+                      ? "rounded-br-md bg-slate-950 text-white"
+                      : "rounded-bl-md border border-slate-200 bg-slate-50 text-slate-700"
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{message.content}</p>
 
                   {message.pendingAction ? (
-                    <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-slate-800">
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-700">
+                    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-slate-800">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-700">
                         Confirmation required
                       </p>
-                      <p className="mt-2 font-semibold">
+                      <p className="mt-2 font-bold">
                         {formatActionType(message.pendingAction.type)}
                       </p>
                       <p className="mt-1 text-sm text-slate-600">{message.pendingAction.summary}</p>
@@ -126,7 +126,7 @@ export const AssistantSection = ({ busy, onSend, onExecuteAction }) => {
                           type="button"
                           disabled={pendingId === index}
                           onClick={() => executeAction(message.pendingAction, index)}
-                          className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-60"
                         >
                           {pendingId === index ? "Running..." : "Confirm and run"}
                         </button>
@@ -140,7 +140,7 @@ export const AssistantSection = ({ busy, onSend, onExecuteAction }) => {
                               )
                             )
                           }
-                          className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                          className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                         >
                           Cancel
                         </button>
@@ -160,7 +160,7 @@ export const AssistantSection = ({ busy, onSend, onExecuteAction }) => {
           </div>
 
           {error ? (
-            <div className="mx-4 mb-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 sm:mx-6">
+            <div className="mx-4 mb-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 sm:mx-6">
               {error}
             </div>
           ) : null}
@@ -174,7 +174,7 @@ export const AssistantSection = ({ busy, onSend, onExecuteAction }) => {
           >
             <div className="flex flex-col gap-3 sm:flex-row">
               <textarea
-                className="min-h-[56px] flex-1 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-teal-500 focus:bg-white"
+                className="min-h-[56px] flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
                 placeholder="Ask about inventory, or say: dispatch 2 units of SKU ABC..."
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
@@ -182,7 +182,7 @@ export const AssistantSection = ({ busy, onSend, onExecuteAction }) => {
               <button
                 type="submit"
                 disabled={busy || !input.trim()}
-                className="rounded-3xl bg-teal-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-xl bg-teal-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-teal-600 disabled:opacity-60"
               >
                 {busy ? "Thinking..." : "Send"}
               </button>
@@ -190,23 +190,23 @@ export const AssistantSection = ({ busy, onSend, onExecuteAction }) => {
           </form>
         </div>
 
-        <aside className="border-t border-slate-100 bg-slate-50/80 p-5 lg:border-l lg:border-t-0">
-          <h3 className="text-lg font-bold text-slate-900">Try asking</h3>
+        <aside className="border-t border-slate-100 bg-slate-50 p-5 lg:border-l lg:border-t-0">
+          <h3 className="text-lg font-black text-slate-950">Useful prompts</h3>
           <div className="mt-4 space-y-3">
             {starterPrompts.map((prompt) => (
               <button
                 key={prompt}
                 type="button"
                 onClick={() => sendMessage(prompt)}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:border-teal-200 hover:text-teal-700"
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-bold text-slate-700 transition hover:border-teal-200 hover:text-teal-700"
               >
                 {prompt}
               </button>
             ))}
           </div>
 
-          <div className="mt-6 rounded-3xl border border-teal-100 bg-teal-50 p-4">
-            <p className="text-sm font-bold text-teal-900">Safe action mode</p>
+          <div className="mt-6 rounded-xl border border-teal-100 bg-teal-50 p-4">
+            <p className="text-sm font-black text-teal-900">Confirmation-first actions</p>
             <p className="mt-2 text-sm leading-6 text-teal-800">
               The assistant can prepare dispatches, returns, product creation, and stock resets, but
               only an admin confirmation button executes the change.

@@ -51,9 +51,9 @@ const getAreaPath = (points) => {
 };
 
 const SummaryPill = ({ label, value, tone = "text-slate-900", background = "bg-slate-100" }) => (
-  <div className={`rounded-2xl px-4 py-3 ${background}`}>
-    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
-    <p className={`mt-2 text-2xl font-extrabold ${tone}`}>{value}</p>
+  <div className={`rounded-xl px-4 py-3 ${background}`}>
+    <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+    <p className={`mt-2 text-2xl font-black tracking-tight ${tone}`}>{value}</p>
   </div>
 );
 
@@ -85,17 +85,17 @@ const TrendCard = ({ trend }) => {
   const selectedReturnPoint = returnedPoints[selectedIndex] || returnedPoints[returnedPoints.length - 1];
 
   return (
-    <section className="rounded-[28px] border border-white/70 bg-white/85 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:p-6">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">
             Sales analysis
           </p>
-          <h3 className="mt-2 text-xl font-bold text-slate-900">
+          <h3 className="mt-2 text-xl font-black text-slate-950">
             Dispatch vs returns ({trend.windowDays} days)
           </h3>
-          <p className="mt-2 text-sm text-slate-500">
-            Tap or hover a day to inspect outgoing sales and stock added back.
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Track outbound stock and returns over the last two weeks.
           </p>
         </div>
 
@@ -121,7 +121,7 @@ const TrendCard = ({ trend }) => {
         </div>
       </div>
 
-        <div className="mt-5 rounded-[26px] border border-slate-200 bg-slate-50 p-4">
+        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
@@ -317,10 +317,10 @@ const TopProductsCard = ({ topProducts }) => {
   const maxQuantity = Math.max(1, ...items.map((item) => item.quantity));
 
   return (
-    <section className="rounded-[28px] border border-white/70 bg-white/85 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:p-6">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-xl font-bold text-slate-900">Top products ({topProducts.windowDays} days)</h3>
+          <h3 className="text-xl font-black text-slate-950">Top products ({topProducts.windowDays} days)</h3>
           <p className="mt-1 text-sm text-slate-500">
             Best-performing products by dispatch quantity.
           </p>
@@ -331,13 +331,13 @@ const TopProductsCard = ({ topProducts }) => {
       </div>
 
       {items.length === 0 ? (
-        <div className="mt-5 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+        <div className="mt-5 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
           No dispatch history yet for this period.
         </div>
       ) : (
         <div className="mt-5 space-y-4">
           {items.map((item, index) => (
-            <div key={`${item.sku}-${item.name}`} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+            <div key={`${item.sku}-${item.name}`} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="truncate font-semibold text-slate-900">{item.name}</p>
@@ -372,10 +372,10 @@ const ReturnsMixCard = ({ returnBreakdown }) => {
   const total = returnBreakdown.totalQuantity;
 
   return (
-    <section className="rounded-[28px] border border-white/70 bg-white/85 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:p-6">
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-xl font-bold text-slate-900">Returns mix ({returnBreakdown.windowDays} days)</h3>
+          <h3 className="text-xl font-black text-slate-950">Returns mix ({returnBreakdown.windowDays} days)</h3>
           <p className="mt-1 text-sm text-slate-500">
             Inbound stock split between returns and exchanges.
           </p>
@@ -386,7 +386,7 @@ const ReturnsMixCard = ({ returnBreakdown }) => {
       </div>
 
       {total === 0 ? (
-        <div className="mt-5 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+        <div className="mt-5 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
           No returns or exchanges logged for this period.
         </div>
       ) : (
@@ -405,7 +405,7 @@ const ReturnsMixCard = ({ returnBreakdown }) => {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {segments.map((item, index) => (
-              <div key={item.type} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <div key={item.type} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <span

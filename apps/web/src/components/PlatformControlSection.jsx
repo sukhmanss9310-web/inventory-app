@@ -52,23 +52,23 @@ export const PlatformControlSection = ({
 
   if (!overview) {
     return (
-      <div className="rounded-[28px] border border-white/70 bg-white/85 p-8 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
         <p className="text-sm text-slate-500">Loading platform controls...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+    <div className="space-y-5">
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">
               Platform owner
             </p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">Workspace access control</h2>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Workspace access control</h2>
           </div>
-          <p className="max-w-2xl text-sm text-slate-500">
+          <p className="max-w-2xl text-sm leading-6 text-slate-500">
             Provision companies, suspend access instantly, and disable users without depending on
             company admins.
           </p>
@@ -76,9 +76,9 @@ export const PlatformControlSection = ({
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {summaryCards.map((item) => (
-            <div key={item.key} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-semibold text-slate-500">{item.label}</p>
-              <p className="mt-3 text-3xl font-extrabold text-slate-900">
+            <div key={item.key} className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{item.label}</p>
+              <p className="mt-2 text-3xl font-black text-slate-950">
                 {overview.metrics[item.key]}
               </p>
             </div>
@@ -86,16 +86,16 @@ export const PlatformControlSection = ({
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-        <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-          <h3 className="text-xl font-bold text-slate-900">Create company workspace</h3>
+      <div className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+          <h3 className="text-xl font-black text-slate-950">Create company workspace</h3>
           <p className="mt-1 text-sm text-slate-500">
             New companies can only enter the app after you create their workspace and admin.
           </p>
 
           <form onSubmit={handleCreateCompany} className="mt-5 space-y-3">
             <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
               placeholder="Company name"
               value={companyState.companyName}
               onChange={(event) =>
@@ -104,7 +104,7 @@ export const PlatformControlSection = ({
               required
             />
             <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
               placeholder="Company code"
               value={companyState.companyCode}
               onChange={(event) =>
@@ -113,7 +113,7 @@ export const PlatformControlSection = ({
               required
             />
             <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
               placeholder="Admin full name"
               value={companyState.adminName}
               onChange={(event) =>
@@ -122,7 +122,7 @@ export const PlatformControlSection = ({
               required
             />
             <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
               placeholder="Admin email"
               type="email"
               value={companyState.adminEmail}
@@ -132,7 +132,7 @@ export const PlatformControlSection = ({
               required
             />
             <input
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
               placeholder="Temporary password"
               type="password"
               value={companyState.adminPassword}
@@ -145,23 +145,23 @@ export const PlatformControlSection = ({
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-60"
             >
               {busy ? "Creating workspace..." : "Create controlled workspace"}
             </button>
           </form>
 
           {message ? (
-            <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
               {message}
             </div>
           ) : null}
         </section>
 
-        <section className="rounded-[28px] border border-white/70 bg-white/85 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Managed companies</h3>
+              <h3 className="text-xl font-black text-slate-950">Managed companies</h3>
               <p className="mt-1 text-sm text-slate-500">
                 Suspend a company instantly or disable individual accounts when needed.
               </p>
@@ -171,16 +171,16 @@ export const PlatformControlSection = ({
 
           <div className="mt-5 space-y-4">
             {overview.companies.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
+              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
                 No client companies have been provisioned yet.
               </div>
             ) : (
               overview.companies.map((company) => (
-                <article key={company.id} className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+                <article key={company.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-lg font-bold text-slate-900">{company.name}</h4>
+                        <h4 className="text-lg font-black text-slate-950">{company.name}</h4>
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-semibold ${
                             company.isActive
@@ -201,7 +201,7 @@ export const PlatformControlSection = ({
                       type="button"
                       disabled={busy}
                       onClick={() => onToggleCompany(company, !company.isActive)}
-                      className={`rounded-2xl px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                      className={`rounded-xl px-4 py-3 text-sm font-bold transition disabled:opacity-60 ${
                         company.isActive
                           ? "bg-rose-600 text-white hover:bg-rose-500"
                           : "bg-emerald-600 text-white hover:bg-emerald-500"
@@ -212,30 +212,30 @@ export const PlatformControlSection = ({
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
                       Users: <span className="font-semibold text-slate-900">{company.counts.users}</span>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
                       Active users: <span className="font-semibold text-slate-900">{company.counts.activeUsers}</span>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
                       Admins: <span className="font-semibold text-slate-900">{company.counts.admins}</span>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
                       Products: <span className="font-semibold text-slate-900">{company.counts.products}</span>
                     </div>
                   </div>
 
                   <div className="mt-4 space-y-3">
                     {company.users.length === 0 ? (
-                      <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
+                      <div className="rounded-xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
                         No users are attached to this company yet.
                       </div>
                     ) : (
                       company.users.map((user) => (
                         <div
                           key={user.id}
-                          className={`flex flex-col gap-3 rounded-2xl border px-4 py-4 sm:flex-row sm:items-center sm:justify-between ${
+                          className={`flex flex-col gap-3 rounded-xl border px-4 py-4 sm:flex-row sm:items-center sm:justify-between ${
                             user.isActive
                               ? "border-slate-200 bg-white"
                               : "border-rose-100 bg-rose-50/60"
@@ -268,7 +268,7 @@ export const PlatformControlSection = ({
                             type="button"
                             disabled={busy}
                             onClick={() => onToggleUser(company, user, !user.isActive)}
-                            className={`rounded-2xl px-4 py-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                            className={`rounded-xl px-4 py-3 text-sm font-bold transition disabled:opacity-60 ${
                               user.isActive
                                 ? "bg-slate-900 text-white hover:bg-slate-800"
                                 : "bg-emerald-600 text-white hover:bg-emerald-500"

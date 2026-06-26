@@ -3,10 +3,10 @@
 
 :root {
   font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif;
-  color: #12303a;
-  background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 28%),
-    linear-gradient(180deg, #f4f7f7 0%, #eef4f3 100%);
+  color: #17211f;
+  background: #f5f2ec;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -14,8 +14,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 28%),
-    linear-gradient(180deg, #f4f7f7 0%, #eef4f3 100%);
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 30rem),
+    linear-gradient(180deg, #fbfaf7 0%, #f2eee7 100%);
 }
 
 * {
@@ -24,6 +24,35 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: rgba(15, 118, 110, 0.18);
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 420ms ease both;
 }

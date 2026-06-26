@@ -26,10 +26,10 @@ export const InventoryResetModal = ({ open, product, busy, onClose, onSubmit }) 
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/40 px-4 py-6 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-[28px] border border-white/70 bg-white p-6 shadow-[0_30px_90px_rgba(15,23,42,0.2)]">
+      <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-2xl font-bold text-slate-900">Reset stock</h3>
+            <h3 className="text-2xl font-black text-slate-950">Reset stock</h3>
             <p className="mt-1 text-sm text-slate-500">
               Correct the exact stock count for {product.name} and record why the change was needed.
             </p>
@@ -37,24 +37,24 @@ export const InventoryResetModal = ({ open, product, busy, onClose, onSubmit }) 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-500"
+            className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-500 transition hover:bg-slate-50"
           >
             Close
           </button>
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
               Current stock
             </p>
-            <p className="mt-2 text-2xl font-extrabold text-slate-900">{product.stock}</p>
+            <p className="mt-2 text-2xl font-black text-slate-950">{product.stock}</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
               SKU
             </p>
-            <p className="mt-2 text-lg font-bold text-slate-900">{product.sku}</p>
+            <p className="mt-2 text-lg font-black text-slate-950">{product.sku}</p>
           </div>
         </div>
 
@@ -70,7 +70,7 @@ export const InventoryResetModal = ({ open, product, busy, onClose, onSubmit }) 
           }}
         >
           <input
-            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
             placeholder="Correct stock value"
             type="number"
             min="0"
@@ -81,7 +81,7 @@ export const InventoryResetModal = ({ open, product, busy, onClose, onSubmit }) 
             required
           />
           <textarea
-            className="min-h-[120px] w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-teal-500"
+            className="min-h-[120px] w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-teal-600 focus:shadow-[0_0_0_4px_rgba(15,118,110,0.1)]"
             placeholder="Reason for correction"
             value={formState.reason}
             onChange={(event) =>
@@ -93,7 +93,7 @@ export const InventoryResetModal = ({ open, product, busy, onClose, onSubmit }) 
           <button
             type="submit"
             disabled={busy}
-            className="w-full rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-amber-400 disabled:opacity-60"
           >
             {busy ? "Resetting..." : "Reset stock"}
           </button>
